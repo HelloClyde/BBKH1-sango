@@ -19,9 +19,16 @@ def main():
     dest = args.dest.resolve()
     dest.mkdir(parents=True, exist_ok=True)
     archive = args.archive or dest / 'g++-mipsel-none-elf-15.2.0.zip'
+    if args.archive and not archive.is_file():
+        raise FileNotFoundError('--archive must name an existing cached ZIP')
     if not archive.exists():
         partial = archive.with_suffix('.part')
-        with urllib.request.urlopen(URL, timeout=60) as response, partial.open('wb') as output:
+        # The distributor rejects urllib's generic Python user agent.
+        request = urllib.request.Request(URL, headers={
+            'User-Agent': 'BBKH1-sango/0.2.1 (+https://github.com/HelloClyde/BBKH1-sango)',
+            'Accept': 'application/octet-stream',
+        })
+        with urllib.request.urlopen(request, timeout=60) as response, partial.open('wb') as output:
             shutil.copyfileobj(response, output)
         partial.replace(archive)
     with archive.open('rb') as stream:
