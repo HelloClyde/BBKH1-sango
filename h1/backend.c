@@ -215,15 +215,13 @@ int bda_sango_gui_message_box(unsigned a,const char *message,const char *title,u
     unsigned e[3];int result=0;while(1)if(poll(e)&&e[0]==0x10){if(e[1]==0x1c){result=1;break;}if(e[1]==1)break;}
     if(saved){memcpy(&window,saved,sizeof(window));h1_free(saved);}dirty=1;return result;
 }
-/* Resolve all imported paths into a dedicated H1 install and save namespace.
- * Save filenames remain paired and the engine's serialized bytes are intact. */
+/* Resources, settings and paired saves share the application's game-data
+ * directory. Firmware paths use GBK; serialized save bytes remain unchanged. */
+#define H1_GAME_DIRECTORY "A:\\\xd3\xa6\xd3\xc3\\\xca\xfd\xbe\xdd\\\xd3\xce\xcf\xb7"
 static const char *path(const char *p,char *out){
     unsigned n=0,start=0;for(unsigned i=0;p[i];i++)if(p[i]=='\\'||p[i]=='/')start=i+1;
     const char *name=p+start;int music=0;for(unsigned i=0;p[i];i++)if(p[i]=='-'&&p[i+1]=='m')music=1;
-    const char *prefix="A:\\应用\\数据\\游戏\\";
-    for(unsigned i=0;name[i];i++)if(name[i]=='.'&&name[i+1]=='s'&&name[i+2]=='a'&&name[i+3]=='v')prefix="A:\\H1SANGO\\";
-    /* The firmware accepts GBK, never UTF8. */
-    if(prefix[3]!=(char)'H')prefix="A:\\\xd3\xa6\xd3\xc3\\\xca\xfd\xbe\xdd\\\xd3\xce\xcf\xb7\\";
+    const char *prefix=H1_GAME_DIRECTORY "\\";
     while(*prefix)out[n++]=*prefix++;
     if(music){const char *m="SGMUSIC\\";while(*m)out[n++]=*m++;}
     while(*name&&n<250)out[n++]=*name++;out[n]=0;return out;
@@ -238,7 +236,7 @@ int bda_sango_fs_feof(void *p){int pos=h1_ftell(p);int end=h1_fseek(p,0,2);h1_fs
 int bda_sango_fs_ferror(void *p){(void)p;return 0;}
 void bda_sango_fs_clearerr(void *p){(void)p;}
 int bda_sango_fs_rename(const char *a,const char *b){char aa[256],bb[256];typedef int(*Fn)(const char *,const char *);return ((Fn)fs(0x28))(path(a,aa),path(b,bb));}
-int bda_sango_fs_mkdir(const char *a){(void)a;typedef int(*Fn)(const char *);return ((Fn)fs(0x30))("A:\\H1SANGO");}
+int bda_sango_fs_mkdir(const char *a){(void)a;typedef int(*Fn)(const char *);return ((Fn)fs(0x30))(H1_GAME_DIRECTORY);}
 unsigned bda_sango_fs_read_at(void *p,unsigned o,unsigned n,void *f){h1_fseek(f,o,0);return h1_fread(p,1,n,f);}
 int bda_sango_fs_access(const char *p,int m){(void)m;if(!p)return -1;void *f=bda_sango_fs_fopen(p,"rb");if(!f)return -1;h1_fclose(f);return 0;}
 int bda_fs_fopen_raw(const char *p,const char *m){return (int)bda_sango_fs_fopen(p,m);}

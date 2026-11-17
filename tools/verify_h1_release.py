@@ -14,7 +14,7 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def main():
-    evidence = ROOT / 'reports/hardware-20261117'
+    evidence = ROOT / 'reports/hardware-savepath-20261117'
     checks = json.loads((evidence / 'physical-checks.json').read_text(encoding='utf8'))
     transfers = json.loads((evidence / 'deployment-summary.json').read_text(encoding='utf8'))
     assert checks['result'] == 'passed' and checks['physical_device_used'] is True

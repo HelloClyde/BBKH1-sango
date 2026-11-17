@@ -42,6 +42,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'H1 MIPS checks failed' }
           python h1/check_uniform_footer.py
           if ($LASTEXITCODE -ne 0) { throw 'Uniform footer render failed' }
+          python h1/test_save_paths.py
+          if ($LASTEXITCODE -ne 0) { throw 'Game-data save path checks failed' }
       - name: Validate release tag
         if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh

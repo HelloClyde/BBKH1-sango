@@ -1,6 +1,6 @@
 # BBKH1-sango · 三国霸业 H1 横屏版
 
-将 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango) 的 C 重建版移植到 **步步高 H1 / Y100 V1.41，480×272 横屏**。当前版本 **0.2.1-h1-font-uniform** 为预览版，未完成整场战斗与完整战役验收。
+将 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango) 的 C 重建版移植到 **步步高 H1 / Y100 V1.41，480×272 横屏**。当前版本 **0.2.2-h1-savepath** 为预览版，未完成整场战斗与完整战役验收。
 
 原游戏恢复代码和派生素材未提供开放许可证；本仓库公开源码用于研究，不将整仓宣称为 MIT 授权。新增适配、音频、字库和 SDK 的许可分别见 [LICENSE.md](LICENSE.md) 与 [来源声明](THIRD_PARTY_NOTICES.md)。
 
@@ -18,7 +18,7 @@
 应用/数据/游戏/SGMUSIC/battle.wav
 ```
 
-退出 USB 磁盘模式后，从桌面游戏分类打开《三国霸业》。程序与素材须一起更新。个人存档在 `A:\H1SANGO\`，安装包不覆盖存档；设置在资源目录的 `sango.cfg`。不包含固件、NAND、原机 BDA、工具链或个人存档。
+退出 USB 磁盘模式后，从桌面游戏分类打开《三国霸业》。程序与素材须一起更新。个人存档为 `A:\应用\数据\游戏\sango0.sav` 至 `sango5.sav`，安装包不覆盖存档；设置在资源目录的 `sango.cfg`。不包含固件、NAND、原机 BDA、工具链或个人存档。
 
 方向键移动 / 选择，确定执行，返回取消；也可触摸菜单、君主、城池及按钮。战略地图支持拖动。主菜单沿用原文“新君登陆”。
 
@@ -34,15 +34,18 @@ python h1/build_h1.py --assets
 python tools/verify_h1_release.py
 python h1/test_landscape.py
 python h1/check_uniform_footer.py
+python h1/test_save_paths.py
 ```
 
 成品输出在 `dist/h1/`。安装脚本校验 GNU 15.2.0 工具链 ZIP 的 SHA256；已有工具链可用 `--cc PATH/TO/mipsel-none-elf-gcc.exe` 或 `H1_GNU_BIN` 指向其 bin 目录。`H1_SDK` 可覆盖 SDK 路径，正式发布固定为子模块提交。
 
 仓库已包含 Noto 字形表及横屏面板，普通构建无需图像生成服务。重新生成可执行 `python h1/make_font.py` 与 `python h1/prepare_landscape.py`，字体随 `assets/fonts/` 提供，采用 SIL OFL 1.1；`SANGO_FONT` 可覆盖字体路径。`build.py`、[README-9588.md](README-9588.md) 和原有 `tools/test_*.py` 保留上游 9588 工程历史，H1 入口以本页为准。
 
+从 0.2.1 升级时，先备份旧 `A:\H1SANGO\` 中的存档，再按原名成对移入上述游戏目录；新版只读取新目录，不自动移动旧文件。详见[升级说明](releases/v0.2.2-h1-savepath.md)。
+
 ## 截图
 
-以下均为本版本在物理 H1 上经 H1Debug 获取的 **480×272 原尺寸截图**：
+以下为 0.2.1 横屏与字体版在物理 H1 上经 H1Debug 获取的 **480×272 原尺寸截图**：
 
 | 主菜单 | 城池信息 |
 | --- | --- |
@@ -65,9 +68,13 @@ python h1/check_uniform_footer.py
 
 ## 验证与限制
 
-2026-11-17 在物理 H1 上安装并校验完整程序和六个资源文件，通过设置触控、剧本 / 君主选择、方向键地图移动、数量 0→1 与取消、三槽界面中的第一槽存读档和正常退出。重载恢复全部 200 名武将数据；城池底栏像素与已验证的固件截图一致。
+横屏与字体版于 2026-11-17 在物理 H1 上安装并校验完整程序和六个资源文件，通过设置触控、剧本 / 君主选择、方向键地图移动、数量 0→1 与取消、三槽界面中的第一槽存读档和正常退出。重载恢复全部 200 名武将数据；城池底栏像素与已验证的固件截图一致。
 
-确切 BDA SHA256：`0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599`。见 [验证记录](reports/H1-VERIFICATION.md) 和 [真机结果](reports/hardware-20261117/physical-checks.json)。发布校验会将构建产物与真机证据逐文件比较，不能用另一份 BDA 的测试代替。
+0.2.2 的存档目录修正在物理 H1 上通过旧档迁移、原档保持不变、新档保存与重载、正常退出检查。下图为本版在新目录写入第二槽后的真机画面：
+
+![H1 真机新目录存档](reports/hardware-savepath-20261117/save-path-saved.png)
+
+当前存档路径修正版的确切 BDA SHA256：`63517c7a45794d24ecc598ee405929e87e856e1202925370dac3e21ede48bc5c`。见 [验证记录](reports/H1-VERIFICATION.md) 和 [存档路径真机结果](reports/hardware-savepath-20261117/physical-checks.json)。发布校验会将构建产物与真机证据逐文件比较，不能用另一份 BDA 的测试代替。
 
 Actions 从固定 SDK 和源码构建、校验 BDA / ZIP、运行固件服务被建模的 MIPS 检查；它不执行物理 H1 或完整固件模拟器。已通过的同指纹真机证据直接复用。整场战斗、全部指令、完整战役及真机听音未完成；离线战场截图不标为真机战斗证明。
 

@@ -115,7 +115,7 @@ def main():
 
 def package():
     metadata=json.loads((DIST/'BUILD_INFO.json').read_text(encoding='utf8'))
-    metadata.update(version='0.2.1-h1-font-uniform',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
+    metadata.update(version='0.2.2-h1-savepath',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
                     strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=20,
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
@@ -145,6 +145,11 @@ def package():
                  '14-map.png','15-city-uniform-footer.png','16-number-before.png','17-number-plus.png',
                  '18-save-slots.png','19-load-slots.png','20-loaded-map.png','21-desktop-after-exit.png'):
         if (hardware/name).exists():files['reports/hardware-20261117/'+name]=hardware/name
+    for name in ('physical-checks.json','deployment-summary.json','save-path-load.png','save-path-saved.png'):
+        p=ROOT/'reports/hardware-savepath-20261117'/name
+        if p.exists():files['reports/hardware-savepath-20261117/'+name]=p
+    p=ROOT/'reports/h1-save-paths.json'
+    if p.exists():files['reports/h1-save-paths.json']=p
     with zipfile.ZipFile(DIST/'H1Sango-install.zip','w',zipfile.ZIP_DEFLATED) as z:
         for name,p in files.items():
             if p.exists():z.write(p,name)
