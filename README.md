@@ -1,181 +1,82 @@
-# BBK9588-sango（三国霸业 C 重建与兼容修复）
+# BBKH1-sango · 三国霸业 H1 横屏版
 
-面向步步高 9588/C200 环境，将提供的《三国霸业》BDA 整理为可重新编译的 MIPS C 工程，
-共 446 个恢复函数，并修复原 9588 移植中的状态栏、战斗动画、制作群组和战斗界面布局问题。
-恢复逻辑已按战斗、战略、存读档、资源、界面和运行库拆成42个模块，函数采用语义名称；
-大型流程和剩余短函数已整理变量名与标签，仍保留部分恢复出的布局和控制流；本项目不是原开发者的工程。
+将 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango) 的 C 重建版移植到 **步步高 H1 / Y100 V1.41，480×272 横屏**。当前版本 **0.2.1-h1-font-uniform** 为预览版，未完成整场战斗与完整战役验收。
 
-当前版本为 **0.1.0-alpha.8 预发布版**；源码托管于
-[HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango)。
-构建状态见 [GitHub Actions](https://github.com/HelloClyde/BBK9588-sango/actions)；
-预发布安装包见 [Releases](https://github.com/HelloClyde/BBK9588-sango/releases)。
-原游戏恢复代码及改编素材没有已提供的开源许可证；新增独立代码与上游 SDK 的许可范围
-分别记录于 [LICENSE.md](LICENSE.md) 和 [来源声明](THIRD_PARTY_NOTICES.md)，请勿将整仓视为 MIT 授权。
+原游戏恢复代码和派生素材未提供开放许可证；本仓库公开源码用于研究，不将整仓宣称为 MIT 授权。新增适配、音频、字库和 SDK 的许可分别见 [LICENSE.md](LICENSE.md) 与 [来源声明](THIRD_PARTY_NOTICES.md)。
 
 ## 快速开始
 
-从本仓库 [Releases](https://github.com/HelloClyde/BBK9588-sango/releases) 选择同一版本的 `-update.zip`，
-建议直接使用升级 ZIP，其中包含同版本 BDA、`sango.lib`、`sango.clr` 和三首背景音乐。
-游戏内全部1240帧素材已用 GPT Image 上色，包括头像、地图、兵种、动画、菜单和补充界面；
-原灰度素材和此前三张彩色草稿保留。启动图标按9288S原图恢复左下曹操、无金冠、铺满背景的整面旗帜及部分可见的“曹”字；旧母图和未采用草稿均保留。城市图标使用透明底，彩色战略地图铺满240×232，消除右侧和下方留白；
-逻辑仍为原7×7格，底栏位置不变。彩色目录与格式见 [彩色素材](assets/color/README.md)。
-
-适用于此前验证的 **9588/C200 固件环境**；不宣称适配所有 BBK 机型。
-升级 ZIP 中的目录与设备内置存储根目录对应：
+从本仓库 [Releases](https://github.com/HelloClyde/BBKH1-sango/releases) 下载同一版本的 **H1Sango-install.zip**。将 ZIP 中的“应用”目录合并至设备内置存储根目录，保留以下结构：
 
 ```text
-应用/
-├── 程序/
-│   └── 三国霸业.bda
-└── 数据/游戏/
-    ├── sango.lib
-    ├── sango.clr
-    └── sango-music/
-        ├── menu.wav
-        ├── strategy.wav
-        └── battle.wav
+应用/程序/H1Sango.bda
+应用/数据/游戏/sango.lib
+应用/数据/游戏/sango.clr
+应用/数据/游戏/sango.h1r
+应用/数据/游戏/SGMUSIC/menu.wav
+应用/数据/游戏/SGMUSIC/strategy.wav
+应用/数据/游戏/SGMUSIC/battle.wav
 ```
 
-源码包含原 `sango.LIB` 完整解包素材与新增素材，构建时重新生成 `sango.lib`。
-开发版扩展索引资源库为518848字节，包含原87条资源及补充底栏、制作群组、势力背景、君主预览和游戏设置，共93条资源；
-`sango.clr` 为2759168字节 RGB565 彩色包，覆盖1240帧，重复图案共用690份像素，另附240×24原尺寸状态图和5张18×18天气图。两库随升级包一起安装。
-文件名沿用原来的 **sango.lib**，不是 sanguo.lib；Windows/设备中的旧拼写 `sango.LIB` 是同名文件。
-本包不包含系统固件、原版 BDA、字库转储或个人存档。
+退出 USB 磁盘模式后，从桌面游戏分类打开《三国霸业》。程序与素材须一起更新。个人存档在 `A:\H1SANGO\`，安装包不覆盖存档；设置在资源目录的 `sango.cfg`。不包含固件、NAND、原机 BDA、工具链或个人存档。
 
-升级前保留设备同名程序及资源备份，把 `应用` 目录合并到内置存储根目录。
-安全弹出设备、退出 USB 存储模式后，从“娱乐天地”打开《三国霸业》。不要把整个源码目录复制进设备。
-程序沿用 `系统/数据/游戏/sango0.sav`、`sango1.sav` 等原存档路径，升级包不覆盖它们。
+方向键移动 / 选择，确定执行，返回取消；也可触摸菜单、君主、城池及按钮。战略地图支持拖动。主菜单沿用原文“新君登陆”。
 
-方向键选择／移动，确定执行，返回取消；也可直接触摸菜单、城池、武将、目的地和操作选项，按住地图拖动移动视野。拖动松手不会确认城池、人物或命令，轻点空地只移动光标。
-点击底部君主头像可进入原有返回键菜单流程；数值面板提供“减少／增加／确定／返回”。触摸与按键可混用，详见 [触摸操作](docs/TOUCH_CONTROLS.md)。
-战斗底栏按9288S比例重排：粮草、天气、人物／地形分栏铺满整行，下接“信息／查找”按钮，
-再下方保留君主头像、城池／武将数、年月和城市名；
-战斗与战略按钮栏同在y=232，以240×36原尺寸绘制；战斗粮草／天气行上移至y=208。
-战场可视区为15列13行，滚动可查看全部格子；
-一位及两位天数弹窗均在屏幕中央。
-战场地形已补齐底色；29张水域图块按原始2bpp像素锁定岸线、转角和水纹，沿用现有彩色调色板，修复上色造成的拼接偏移。天气和伤害数字去除白底。
-彩色动画用SDK保存并恢复底图，避免旧白色擦除在彩色背景上留下白块。
-粮／天／信息／查找在最终PNG中按16×16点阵排字，状态行240×24、按钮栏240×36均按1:1贴图；
-数字、姓名透明叠加，右侧单行沿用原版的武将名／地形名切换。问号以16×16单比特掩码烘焙进图片，天气图按原生18×18显示。
-战斗信息页改用16像素字体与双列属性表，后台整页绘制后一次显示；点击或按键返回，不再逐行直接绘屏或自动消失。
-战斗菜单按9288S原版对应：敌军移动设置“不看／观看”，全军撤退直接结束本场战斗；修正9588原版接反的两个分支，见[菜单对照](docs/BATTLE_OPTIONS.md)。
-树林改为绿色，演出框在战场区域居中，提示和伤害数字保持原相对位置。坐标与依据见 [战斗底栏布局](docs/BATTLE_LAYOUT.md)。
-
-背景音乐按场景切换：主菜单《谈笑风云·史诗主题V2》、策略《帷幄清风·策略谋划》、战斗《铁甲冲阵·器乐返修V7》。
-三首保留完整时长并循环播放，压缩为22050Hz单声道IMA ADPCM，合计约5.8MB。
-请连同 `sango-music` 目录一起安装；缺少音乐时游戏静音运行。转换和播放细节见 [音乐素材](assets/music/README.md)。
-
-### 开发者构建
-
-在仓库根目录执行（Windows PowerShell，Python 3.11+）：
+开发者在 Windows PowerShell、Python 3.12 下执行：
 
 ```powershell
+git clone https://github.com/HelloClyde/BBKH1-sango.git
+cd BBKH1-sango
 git submodule update --init sdk
-powershell -ExecutionPolicy Bypass -File sdk/scripts/setup_toolchain.ps1
-python -m pip install -r requirements-assets.txt
-python build.py
-python tools/package_release.py --require-validated
-python tools/verify_artifacts.py --require-validated
+python -m pip install -r requirements-h1.txt
+python tools/install_h1_toolchain.py
+python h1/build_h1.py --assets
+python tools/verify_h1_release.py
+python h1/test_landscape.py
+python h1/check_uniform_footer.py
 ```
 
-已有编译器时可指定路径：`python build.py --cc PATH/TO/mipsel-none-elf-gcc.exe`，
-或设置 `SANGO_CC`。构建需要 Pillow 编码仓库中的图片，无需图像生成服务或原版 BDA/LIB 文件。
+成品输出在 `dist/h1/`。安装脚本校验 GNU 15.2.0 工具链 ZIP 的 SHA256；已有工具链可用 `--cc PATH/TO/mipsel-none-elf-gcc.exe` 或 `H1_GNU_BIN` 指向其 bin 目录。`H1_SDK` 可覆盖 SDK 路径，正式发布固定为子模块提交。
 
-输出 `build/三国霸业.bda`、`build/sango.lib`、`build/sango.clr` 和 `build/music/*.wav`；打包输出在 `dist/`，包括BDA、两库、内含音乐目录的升级 ZIP、`BUILD_INFO.json`
-及逐文件 `SHA256SUMS.txt`。普通构建不会发布任何远程内容。
-`--require-validated` 要求 BDA、LIB、CLR 和三首音乐分别与当前验证记录相符；修改代码或素材后，须重新验证并更新参考记录。
-
-### 阅读与修改源码
-
-从 [源码导航](docs/SOURCE_GUIDE.md) 开始，入口流程在 `src/app/lifecycle.c`，
-战略月份循环在 `src/strategy/turns.c`，战斗日循环在 `src/battle/controller.c`。
-[函数索引](docs/FUNCTION_INDEX.md) 列出全部446个函数的新名称、原地址及文件位置；
-`python tools/source_index.py --find battle_run` 可从命令行查询。
-武将、城市和部队结构见 `include/sango_state.h`，旧状态区地址集中在 `include/sango_legacy_memory.h`。
-
-修改模块后运行 `python tools/source_index.py --check` 和资源用途检查，再重新构建。
-构建生成的 `build/sango_engine.c` 仅按固定顺序包含各模块，以保持原布局和优化；日常编辑直接修改功能模块。
-第一阶段模块拆分保持了 BDA 字节一致；第二阶段继续整理95个函数、减少113处跳转，
-编译结果会变化，资源库保持不变。新旧代码对照及验证范围见 [复杂函数整理](docs/CONTROL_FLOW_REFACTOR.md)。
-随后整理剩余249个函数的1516个变量/参数名和54个标签，446个函数已无旧式临时命名。
-这一步的 ELF、BDA 和 LIB 均与已验证版本逐字节一致，见 [短函数命名整理](docs/IDENTIFIER_CLEANUP.md)。
-
-### 素材编辑与 LIB 回包
-
-[assets/](assets/README.md) 统一保存解包资源、GPT Image 母图、目标尺寸图片、提示词和原图参考，
-包括此前保留的三张彩色草稿。`assets/library/manifest.json` 是 LIB 打包入口。
-解包素材按代码中的实际用途命名；头像按各剧本的原姓名表命名，见 [资源目录](assets/library/资源目录.md)
-与 [逐项代码核对](assets/library/代码用途核对.md)。没有明确调用依据的内容保留待确认标记。
-
-```powershell
-python tools/sango_lib.py pack
-python tools/sango_lib.py pack --original-only -o build/sango-original.lib
-python tools/test_sango_lib.py
-python tools/color_assets.py build
-python -m pip install -r requirements-validation.txt
-python tools/test_color_assets.py
-```
-
-默认输出 `build/sango.lib`。原库未修改时，`--original-only` 可逐字节还原 439720 字节原文件。
-已导出 1202 张 PNG、27 组动画指令及 7 张战场地图；包括100～107号菜单选中动画。
-其余24条原资源保留二进制记录，无遗漏回包。
-新增底栏/制作群组以同一份 PNG 生成 LIB 条目和当前 C 内嵌数据；应用图标由 SDK 打入 BDA。
-彩色PNG使用相同语义目录和帧名；`assets/color/catalog.json` 记录原资源、帧号、母图裁切和目标文件。
-彩色绘制通过固定SDK的命名 RGB565 接口，透明遮罩、动画指令及存档布局沿用原数据。
-缺少彩色包或其LIB校验不符时回退灰度。修改彩色PNG后运行 `python tools/color_assets.py refresh` 再完整构建。
-详细格式、编辑约束及解包命令见 [原库说明](assets/library/README.md) 和 [彩色包说明](assets/color/README.md)。
-`python tools/audit_resource_usage.py --check` 可检查93项资源的命名依据、调用表达式和选择表是否仍与代码相符。
+仓库已包含 Noto 字形表及横屏面板，普通构建无需图像生成服务。重新生成可执行 `python h1/make_font.py` 与 `python h1/prepare_landscape.py`，字体随 `assets/fonts/` 提供，采用 SIL OFL 1.1；`SANGO_FONT` 可覆盖字体路径。`build.py`、[README-9588.md](README-9588.md) 和原有 `tools/test_*.py` 保留上游 9588 工程历史，H1 入口以本页为准。
 
 ## 截图
 
-以下均为本地 C200 固件模拟器的真实截图，非真机截图或设计稿。木质主菜单和势力页来自本轮验证；其他画面为对应功能的历史验证截图，具体构建哈希见验证记录。
-验证以准确 BDA、扩展LIB及CLR的RAM装载隔离合成NAND的ECC差异；文件加载另由编译MIPS检查。
-战斗图片来自受控战场界面夹具；未宣称完整战斗或战役已验证。
+以下均为本版本在物理 H1 上经 H1Debug 获取的 **480×272 原尺寸截图**：
 
-| 主菜单 | 战略地图 | 战斗界面 |
-| --- | --- | --- |
-| ![主菜单](docs/screenshots/settings/main-menu-settings.png) | ![战略地图](docs/screenshots/strategy.png) | ![战斗界面](docs/screenshots/battle.png) |
-
-| 势力与君主预览 | 开门动画 |
+| 主菜单 | 城池信息 |
 | --- | --- |
-| ![刘备势力](docs/screenshots/ruler/scenario1-liu-bei.png) | ![开门动画](docs/screenshots/intro/opening-preview.gif) |
+| ![H1 真机主菜单](reports/hardware-20261117/10-main-confirmed.png) | ![H1 真机城池信息](reports/hardware-20261117/15-city-uniform-footer.png) |
+| 君主选择 | 战略地图 |
+| ![H1 真机君主选择](reports/hardware-20261117/13-ruler.png) | ![H1 真机地图](reports/hardware-20261117/14-map.png) |
 
-| 天数弹窗 | 制作群组 |
-| --- | --- |
-| ![第10天](docs/screenshots/day-10.png) | ![制作群组](docs/screenshots/credits.png) |
-
-| 武将信息 | 地形信息 |
-| --- | --- |
-| ![武将信息](docs/screenshots/battle-info.png) | ![地形信息](docs/screenshots/battle-terrain-info.png) |
-
-验证方法、精确哈希和未覆盖范围见 [验证记录](docs/VALIDATION.md)。
+底栏统一 12px，正文 / 按钮 14px，标题 20px；所有汉字统一字号和基线，不逐字缩小。横屏素材重新布局，战略地图显示 12×6 格，战场绘制视口为 20×9 格。
 
 ## 依赖
 
-- **使用成品**：9588/C200 环境，安装同一版本的 BDA、`sango.lib`、`sango.clr` 和 `sango-music` 目录，不需要 SDK 或 Python。
-- **音乐转换**：运行包已包含转换结果；常规构建无需FFmpeg或母带。重新转换使用FFmpeg/ffprobe 5.1.2及用户原始FLAC。
-- **SDK**：[HelloClyde/BBK9588-bda-sdk](https://github.com/HelloClyde/BBK9588-bda-sdk)，
-  子模块固定 `ef3bf3b7328a3a8fa9ba48593c63285300725fb7`，没有自动升级。
-- **工具链**：MIPS O32 小端、soft-float，已验证 GCC 15.2.0；SDK 安装脚本校验工具链 ZIP 的 SHA-256。
-- **构建**：Git、Python 3.11+ 和 Pillow 12.3.0；本地验证使用 Python 3.11.5，CI 配置为 Python 3.12/Windows。
-- **素材依赖安装**：`python -m pip install -r requirements-assets.txt`。
-  母图与提示词已保存。`tools/pack_*.py` 只重新编码已有母图，不访问图像生成服务。
-- **模拟器复验**：用户自行提供兼容 QEMU、C200 固件和 NAND；它们不会上传仓库或 CI。
+使用成品只需要 H1 / Y100 V1.41 和同版资源文件，无需安装 SDK、H1Debug 或电脑软件。
 
-项目私有的 SDK 兼容扩展放在 `include/bda_sango_compat.h`，不会修改 `sdk/` 子模块。
-公共 SDK 接口可用后，通过 `include/sango_sdk_bindings.h` 切换，游戏调用处保持命名接口。
+构建依赖：
+
+- [MrDefinition1999/bbk-h1-bda-sdk](https://github.com/MrDefinition1999/bbk-h1-bda-sdk)，固定 `067fe072477861dfc8949d7b1a55279fb92d2548`，位于 `sdk/`。这是 H1 专用 SDK，未套用 9588 固件 ABI。
+- Windows GNU MIPS little-endian 15.2.0，安装入口 `tools/install_h1_toolchain.py`；其他平台需自行提供兼容编译器，不宣称已验证跨工具链一致性。
+- Python 3.12、Pillow 12.3.0、pyelftools 0.33；离线 MIPS 检查另需 Unicorn 2.1.4，见 `requirements-h1.txt`。
+- 字库和原尺寸图像已纳入源码，无需原版 BDA / LIB、固件或私人模拟器即可构建。
+
+## 验证与限制
+
+2026-11-17 在物理 H1 上安装并校验完整程序和六个资源文件，通过设置触控、剧本 / 君主选择、方向键地图移动、数量 0→1 与取消、三槽界面中的第一槽存读档和正常退出。重载恢复全部 200 名武将数据；城池底栏像素与已验证的固件截图一致。
+
+确切 BDA SHA256：`0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599`。见 [验证记录](reports/H1-VERIFICATION.md) 和 [真机结果](reports/hardware-20261117/physical-checks.json)。发布校验会将构建产物与真机证据逐文件比较，不能用另一份 BDA 的测试代替。
+
+Actions 从固定 SDK 和源码构建、校验 BDA / ZIP、运行固件服务被建模的 MIPS 检查；它不执行物理 H1 或完整固件模拟器。已通过的同指纹真机证据直接复用。整场战斗、全部指令、完整战役及真机听音未完成；离线战场截图不标为真机战斗证明。
 
 ## 感谢
 
+- 上游 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango)，本移植基于 `8786793bd9c7c102b05b72cd9d88887d100ac60d`，保留恢复代码、彩色素材及原提交历史。
 - 原游戏制作群组：策划 **BBK gamegroup**；程序 **通宵虫、南方小鬼**；美工 **Sunday**。
-- **HelloClyde / BBK9588-bda-sdk**：SDK、BDA 编码与校验工具。
-- 提供原文件、9588 真机反馈、9288S 对照及修复需求的使用者。
-- 应用图标、恢复底栏、制作群组及全部游戏内彩色母图通过 GPT Image 生成；来源和提示词在 `assets/` 中保存。
+- **HelloClyde / BBK9588-bda-sdk** 提供的原重建版本、SDK 工具与修复工作；**MrDefinition1999 / bbk-h1-bda-sdk** 提供 H1 原生 SDK。
+- 提供原文件、9588 真机反馈、9288S 对照及 H1 适配需求的使用者。
+- 原图参考、GPT Image 生成素材及音乐来源记录保留在 `assets/`；Noto 字体来自 Noto CJK 项目。
 
-致谢不改变原作、SDK 或素材的许可范围。发布步骤见 [发布说明](docs/RELEASING.md)。
-
-势力选择页已加入与主菜单一致的木质底图和当前君主48×48头像，点选名字先预览，再点“确定”进入。四个剧本均按实际君主ID绑定头像和姓名，说明及模拟器截图见 [势力选择页](docs/RULER_SELECTION.md)。
-
-alpha.7同时改善菜单整页绘制、存档槽位对齐与背景音乐读取预算，说明见 [菜单响应](docs/MENU_INPUT.md)、[存档布局](docs/SAVE_LAYOUT.md)、[开门动画](docs/OPENING_ANIMATION.md)及 [音乐播放](docs/MUSIC_PLAYBACK.md)。
-
-alpha.8将主菜单第三项改为“游戏设置”，提供音乐开关、0～100%音量及制作群组入口；偏好独立保存在资源目录的`sango.cfg`。制作群组、存读档及历史时期页补齐木色，制作群组图片新增“优化作者 HelloClyde”。用法、素材来源和原生截图见 [游戏设置](docs/GAME_SETTINGS.md)。势力页在完整组页后才显示，切换复用画布并更新局部；菜单离屏绘制期间阻止中途刷新，外框、文字、表单和数值按钮齐备后统一提交。主菜单选中图片先处理透明底再缩放，去除白边。对应方法与实际LCD采样见 [菜单绘制](docs/MENU_INPUT.md)；旧版报告保留各自构建哈希。
+致谢不替代原游戏、素材、音乐或字体的许可。

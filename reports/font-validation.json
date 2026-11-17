@@ -1,0 +1,22 @@
+{
+  "result": "passed",
+  "cell_sizes": [
+    12,
+    14,
+    16,
+    20,
+    24
+  ],
+  "glyphs_per_size": 7573,
+  "uncropped_glyph_checks": 37865,
+  "uniform_cjk_font_pixels": {
+    "12": 12,
+    "14": 14,
+    "16": 16,
+    "20": 20,
+    "24": 24
+  },
+  "extra_rows": 8,
+  "top_pad": 4,
+  "method": "Uniform nominal CJK size and shared baseline per bank; extra vertical storage prevents clipping. Compare final bitmaps with oversized reference ink; wide symbols fit horizontally without changing font height."
+}

@@ -1,122 +1,60 @@
-name: Build and release Sango
-
+name: H1 build and prerelease
 on:
   push:
     branches: [main]
     tags: ['v*']
   pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          submodules: true
           persist-credentials: false
-      - name: Initialize pinned SDK only
-        shell: pwsh
-        run: |
-          git submodule update --init sdk
-          if ($LASTEXITCODE -ne 0) { throw 'SDK checkout failed' }
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
-      - name: Install verified toolchain
+      - name: Install pinned GNU toolchain and Python dependencies
         shell: pwsh
         run: |
-          & ./sdk/scripts/setup_toolchain.ps1
-          if ($LASTEXITCODE -ne 0) { throw 'Toolchain setup failed' }
-      - name: Install resource codec and verify lossless repacking
+          python tools/install_h1_toolchain.py
+          if ($LASTEXITCODE -ne 0) { throw 'Toolchain installation failed' }
+          python -m pip install -r requirements-h1.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+      - name: Clean source build and exact physical-evidence gate
         shell: pwsh
         run: |
-          python -m pip install -r requirements-assets.txt
-          if ($LASTEXITCODE -ne 0) { throw 'Resource dependency setup failed' }
-          python tools/source_index.py --check
-          if ($LASTEXITCODE -ne 0) { throw 'Source layout or function index differs' }
-          python tools/audit_resource_usage.py --check
-          if ($LASTEXITCODE -ne 0) { throw 'Resource naming/code evidence differs' }
-          python tools/test_sango_lib.py
-          if ($LASTEXITCODE -ne 0) { throw 'Resource codec checks failed' }
-      - name: Compile C and validate BDA with SDK
+          python h1/build_h1.py --assets
+          if ($LASTEXITCODE -ne 0) { throw 'H1 source build failed' }
+          python tools/verify_h1_release.py
+          if ($LASTEXITCODE -ne 0) { throw 'Physical evidence or package hash mismatch' }
+      - name: Compiled MIPS checks with modeled firmware services
         shell: pwsh
         run: |
-          python build.py
-          if ($LASTEXITCODE -ne 0) { throw 'Build or BDA validation failed' }
-      - name: Check compiled RGB565 resource path and retained battle layout
-        shell: pwsh
-        run: |
-          python -m pip install -r requirements-validation.txt
-          if ($LASTEXITCODE -ne 0) { throw 'MIPS validation dependency setup failed' }
-          python tools/test_color_assets.py
-          if ($LASTEXITCODE -ne 0) { throw 'Compiled RGB565 checks failed' }
-          python tools/test_strategy_color_map.py
-          if ($LASTEXITCODE -ne 0) { throw 'City transparency or strategy viewport checks failed' }
-          python tools/test_battle_color.py
-          if ($LASTEXITCODE -ne 0) { throw 'Battle color/timeline checks failed' }
-          python tools/test_river_geometry.py
-          if ($LASTEXITCODE -ne 0) { throw 'River tiles changed original bank/ripple geometry' }
-          python tools/test_battle_pixel_grid.py
-          if ($LASTEXITCODE -ne 0) { throw 'Native HUD image or glyph grid checks failed' }
-          python tools/test_touch_input.py
-          if ($LASTEXITCODE -ne 0) { throw 'Touch input or menu/map interaction checks failed' }
-          python tools/test_battle_info.py
-          if ($LASTEXITCODE -ne 0) { throw 'Battle info sheet or native weather checks failed' }
-          python tools/test_battle_options.py
-          if ($LASTEXITCODE -ne 0) { throw 'Battle options differ from original 9288S row actions' }
-          python tools/test_music.py
-          if ($LASTEXITCODE -ne 0) { throw 'Music decoder, streaming lifecycle or timer isolation failed' }
-          python tools/test_save_layout.py
-          if ($LASTEXITCODE -ne 0) { throw 'Save layout regression failed' }
-          python tools/test_menu_input.py
-          if ($LASTEXITCODE -ne 0) { throw 'Menu/table paint scopes or ruler input regression failed' }
-          python tools/test_menu_atomic.py
-          if ($LASTEXITCODE -ne 0) { throw 'Popup outer frame or intermediate firmware flush regression failed' }
-          python tools/test_intro.py
-          if ($LASTEXITCODE -ne 0) { throw 'Opening-door motion, timer isolation or skip regression failed' }
-          python tools/test_ruler_ui.py
-          if ($LASTEXITCODE -ne 0) { throw 'Faction background, portraits or preview/confirm regression failed' }
-          python tools/test_ruler_response.py
-          if ($LASTEXITCODE -ne 0) { throw 'Faction first-frame, immediate input or incremental redraw regression failed' }
-          python tools/test_settings.py
-          if ($LASTEXITCODE -ne 0) { throw 'Music settings, persistence or secondary-menu regression failed' }
-          python tools/test_menu_transparency.py
-          if ($LASTEXITCODE -ne 0) { throw 'Menu sprite alpha or white-edge regression failed' }
-          python tools/test_battle_ui_color.py
-          if ($LASTEXITCODE -ne 0) { throw 'Image HUD or centered combat UI checks failed' }
-          python tools/test_battle_hud.py
-          if ($LASTEXITCODE -ne 0) { throw 'Battle HUD checks failed' }
-          python tools/test_battle_summary.py
-          if ($LASTEXITCODE -ne 0) { throw 'Battle summary checks failed' }
-          python tools/test_battle_viewport.py
-          if ($LASTEXITCODE -ne 0) { throw 'Battle viewport checks failed' }
-      - name: Package update assets
+          python h1/test_landscape.py
+          if ($LASTEXITCODE -ne 0) { throw 'H1 MIPS checks failed' }
+          python h1/check_uniform_footer.py
+          if ($LASTEXITCODE -ne 0) { throw 'Uniform footer render failed' }
+      - name: Validate release tag
+        if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         env:
           RELEASE_TAG: ${{ github.ref_name }}
-          IS_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
-          if ($env:IS_TAG -eq 'true') {
-            python tools/package_release.py --tag "$env:RELEASE_TAG" --require-validated
-          } else {
-            python tools/package_release.py
-          }
-          if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
-          python tools/verify_artifacts.py
-          if ($LASTEXITCODE -ne 0) { throw 'Artifact verification failed' }
-          python tools/test_release_pipeline.py
-          if ($LASTEXITCODE -ne 0) { throw 'Release integration checks failed' }
+          $version = (Get-Content dist/h1/BUILD_INFO.json -Raw | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -cne ('v' + $version)) { throw 'Tag and package version differ' }
+          if (!(Test-Path ('releases/' + $env:RELEASE_TAG + '.md'))) { throw 'Release notes missing' }
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: BBK9588-sango-release
-          path: dist/*
+          name: BBKH1-sango
+          path: dist/h1/*
           archive: true
           if-no-files-found: error
           retention-days: 14
-
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
@@ -126,27 +64,28 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          submodules: true
           persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: BBK9588-sango-release
-          path: dist
+          name: BBKH1-sango
+          path: dist/h1
           skip-decompress: false
           digest-mismatch: error
-      - name: Verify downloaded files
-        run: python3 tools/verify_artifacts.py --require-validated
-      - name: Create prerelease without replacing existing assets
+      - name: Verify the same build artifacts and publish without overwrite
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          python -m pip install Pillow==12.3.0
+          python tools/verify_h1_release.py
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo 'Release already exists; refusing to overwrite it.' >&2
+            echo 'Release exists; refusing to overwrite assets.' >&2
             exit 1
           fi
-          gh release create "$RELEASE_TAG" dist/* \
-            --verify-tag --prerelease \
-            --title "三国霸业 $RELEASE_TAG" \
-            --notes-file "releases/$RELEASE_TAG.md"
+          gh release create "$RELEASE_TAG" dist/h1/* --verify-tag --prerelease --title "三国霸业 H1 $RELEASE_TAG" --notes-file "releases/$RELEASE_TAG.md"

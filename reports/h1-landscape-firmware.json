@@ -1,0 +1,326 @@
+{
+  "result": "passed",
+  "physical_device_used": false,
+  "game_ram_modified": false,
+  "bda_sha256": "142fb8a6ecf8ec3e691180b0c9ba8e8b14942aaf44114ca783cb644a6b78215e",
+  "asset_pack_sha256": "04ab311d6bbf524964cedc9a11be43bc535c90debb936bf2d16e9786c412b0c4",
+  "checks": [
+    "native-main-art",
+    "landscape-settings",
+    "volume-buttons",
+    "music-toggle",
+    "landscape-credits",
+    "horizontal-scenario-cards",
+    "three-column-ruler-selection",
+    "ruler-preview-touch",
+    "12x6-strategy-map",
+    "keyboard-map-movement",
+    "touch-rightmost-map-column",
+    "vertical-map-drag",
+    "two-column-city-details",
+    "native-number-plus-and-cancel",
+    "landscape-save-slot-1",
+    "load-restores-game-state-and-all-200-characters",
+    "normal-exit-desktop",
+    "native-pcm-output"
+  ],
+  "states": {
+    "initial-map": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 7,
+      "g_strategy_cursor_y": 1,
+      "g_strategy_viewport_x": 0,
+      "g_strategy_viewport_y": 0,
+      "g_battle_day": 0,
+      "g_native_event_kind": 0,
+      "g_game_context": 2187200204,
+      "g_character_table_address": 2180055480,
+      "h1_layout_game": [
+        1
+      ],
+      "h1_native_active": [
+        1
+      ],
+      "h1_screen_id": [
+        13
+      ],
+      "h1_diagnostic": [
+        1397180465,
+        0,
+        0,
+        17,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "dragged-map": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 7,
+      "g_strategy_cursor_y": 3,
+      "g_strategy_viewport_x": 0,
+      "g_strategy_viewport_y": 3,
+      "g_battle_day": 0,
+      "g_native_event_kind": 0,
+      "g_game_context": 2187200204,
+      "g_character_table_address": 2180055480,
+      "h1_layout_game": [
+        1
+      ],
+      "h1_native_active": [
+        1
+      ],
+      "h1_screen_id": [
+        13
+      ],
+      "h1_diagnostic": [
+        1397180465,
+        0,
+        0,
+        33,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "saved": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 7,
+      "g_strategy_cursor_y": 1,
+      "g_strategy_viewport_x": 0,
+      "g_strategy_viewport_y": 1,
+      "g_battle_day": 0,
+      "g_native_event_kind": 0,
+      "g_game_context": 2187200204,
+      "g_character_table_address": 2180055480,
+      "h1_layout_game": [
+        1
+      ],
+      "h1_native_active": [
+        1
+      ],
+      "h1_screen_id": [
+        13
+      ],
+      "h1_diagnostic": [
+        1397180465,
+        0,
+        0,
+        58,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "character_table_sha256": "0e96906a439e1a3480b8972bee50925c0a9d80b1632fc31c840602c19a0831e9"
+    },
+    "changed": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 8,
+      "g_strategy_cursor_y": 1,
+      "g_strategy_viewport_x": 0,
+      "g_strategy_viewport_y": 1,
+      "g_battle_day": 0,
+      "g_native_event_kind": 0,
+      "g_game_context": 2187200204,
+      "g_character_table_address": 2180055480,
+      "h1_layout_game": [
+        1
+      ],
+      "h1_native_active": [
+        1
+      ],
+      "h1_screen_id": [
+        13
+      ],
+      "h1_diagnostic": [
+        1397180465,
+        0,
+        0,
+        59,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "loaded": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 7,
+      "g_strategy_cursor_y": 1,
+      "g_strategy_viewport_x": 0,
+      "g_strategy_viewport_y": 1,
+      "g_battle_day": 0,
+      "g_native_event_kind": 0,
+      "g_game_context": 2187200204,
+      "g_character_table_address": 2180055480,
+      "h1_layout_game": [
+        1
+      ],
+      "h1_native_active": [
+        1
+      ],
+      "h1_screen_id": [
+        13
+      ],
+      "h1_diagnostic": [
+        1397180465,
+        0,
+        0,
+        67,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "character_table_sha256": "0e96906a439e1a3480b8972bee50925c0a9d80b1632fc31c840602c19a0831e9"
+    },
+    "exit": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 7,
+      "g_strategy_cursor_y": 1,
+      "g_strategy_viewport_x": 0,
+      "g_strategy_viewport_y": 1,
+      "g_battle_day": 0,
+      "g_native_event_kind": 102,
+      "g_game_context": 2187200204,
+      "g_character_table_address": 2180055480,
+      "h1_layout_game": [
+        0
+      ],
+      "h1_native_active": [
+        1
+      ],
+      "h1_screen_id": [
+        1
+      ],
+      "h1_diagnostic": [
+        1397180465,
+        9,
+        0,
+        70,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "audio": {
+    "sequence": 1959,
+    "packets": 1959,
+    "frames": 1309801,
+    "sample_rate": 32000,
+    "queued_packets": 256,
+    "diagnostics": {
+      "sample_rate": 32000,
+      "tx_fifo_level": 30,
+      "rx_fifo_level": 0,
+      "flags": 29,
+      "aicfr": 7985,
+      "aiccr": 608258,
+      "cdccr1": 35332866,
+      "cdccr2": 1539,
+      "tx_dma_samples": 1307171,
+      "rx_dma_samples": 0,
+      "output_frames": 1310260,
+      "input_frames": 0,
+      "underruns": 3119,
+      "overruns": 0,
+      "dma_completions": 1305,
+      "dma_rearms": 1304,
+      "last_rearm_gap_ns": 52500,
+      "max_rearm_gap_ns": 613147800,
+      "total_rearm_gap_ns": 941824900,
+      "last_gap_underruns": 0,
+      "total_gap_underruns": 0,
+      "last_dma_units": 1000,
+      "completion_fifo_level": 31,
+      "rearm_fifo_level": 30
+    }
+  },
+  "saved_files": [
+    {
+      "path": "/H1SANGO/sango0.sav",
+      "bytes": 3445,
+      "sha256": "ff6adb1c5cafa980f70d6a89aa1034f7d8e2582d59d1e2b108636176b038e93e",
+      "prefix_hex": "010dbe000101010100010701"
+    },
+    {
+      "path": "/H1SANGO/sango1.sav",
+      "bytes": 2898,
+      "sha256": "86dc1a93534056604952c59138295e71fea179b6298b47420316083d5624fde3",
+      "prefix_hex": "000000000000000000000000"
+    }
+  ],
+  "owned_qemu_stopped": true,
+  "loaded_asset_pack_verified_on_nand": true
+}

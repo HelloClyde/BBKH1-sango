@@ -1,0 +1,68 @@
+{
+  "version": 2,
+  "target": [
+    480,
+    272
+  ],
+  "generation": "Built-in image_gen; generated/main-menu.png and generated/panel.png; typed native UI text via Noto Sans CJK",
+  "assets": [
+    {
+      "name": "main-0",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "a465cb4bdfd6b2b5c2f0478900e5cedf5a564f8153da2e2df4e565fcb6bc2aa3"
+    },
+    {
+      "name": "main-1",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "d797e9c0d675bf86ae2db4db7a078bc39e7b516faf552b501677835226f9d8c5"
+    },
+    {
+      "name": "main-2",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "ff54b4fda30413cd3c444d0ef95756405b30d956d55f5142e4424f600194169f"
+    },
+    {
+      "name": "main-3",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "49974d5b227f8be4ea3ef4598a63369d3796349b4922e00f884457ee05322d5d"
+    },
+    {
+      "name": "panel",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "11b3cf3129a33ccb45a5093876549627e05b73189c506f940dbab63c86f28fe9"
+    },
+    {
+      "name": "scenarios",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "f1623a452650435201112ccf2ef899eaa8ebb10fcac38e6a3272a6dd9c6fa52e"
+    },
+    {
+      "name": "hud",
+      "size": [
+        480,
+        56
+      ],
+      "png_sha256": "bf56c2a8fa0b5c8a017a6a3b360d0bcc7866217bf46c0fa1e1639ef6a810ae36"
+    }
+  ],
+  "pack_bytes": 1620580,
+  "pack_sha256": "0809eee524043a2ff96972b9c8a5bf585ff044a2d1ab3611839f7a45a4076f17"
+}

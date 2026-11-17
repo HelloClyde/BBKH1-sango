@@ -1,0 +1,10 @@
+{
+  "result": "passed",
+  "bda_sha256": "0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599",
+  "asset_pack_sha256": "0809eee524043a2ff96972b9c8a5bf585ff044a2d1ab3611839f7a45a4076f17",
+  "screen": "city-details",
+  "footer": "确定选择本城 · 返回取消",
+  "footer_cjk_nominal_pixels": 12,
+  "per_character_font_shrinking": false,
+  "scope": "Actual MIPS UI and font rendering. Heap and cancel input modeled; not a firmware/physical-device test."
+}

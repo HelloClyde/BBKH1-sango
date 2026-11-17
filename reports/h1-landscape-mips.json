@@ -1,0 +1,42 @@
+{
+  "result": "passed",
+  "layout_backend_checks": 32,
+  "native_contact_cases": [
+    "stale-coordinate-tap",
+    "short-right-edge-tap",
+    "real-drag-and-release",
+    "menu-release-position-tap"
+  ],
+  "battle_matrix": {
+    "passed": 507,
+    "failed": 0,
+    "viewport_tiles": [
+      20,
+      9
+    ],
+    "map_rectangle": [
+      0,
+      0,
+      320,
+      144
+    ],
+    "rules_window_unchanged": [
+      15,
+      15
+    ],
+    "resources_checked": [
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116
+    ],
+    "bda_sha256": "142fb8a6ecf8ec3e691180b0c9ba8e8b14942aaf44114ca783cb644a6b78215e",
+    "scope": "Compiled MIPS real-map viewport copies, edge clamps, 180-tile painting, top-to-bottom scrolling/reachability, overlays and sprite/effect clipping; SDK rendering boundaries modeled. Not complete battle or hardware proof."
+  },
+  "bda_sha256": "142fb8a6ecf8ec3e691180b0c9ba8e8b14942aaf44114ca783cb644a6b78215e",
+  "asset_pack_sha256": "04ab311d6bbf524964cedc9a11be43bc535c90debb936bf2d16e9786c412b0c4",
+  "scope": "Actual H1 MIPS native-coordinate mapping and contact timing, valid/corrupt native art pack parsing, full landscape UI render, seven real battle maps, and movement markers in newly visible columns. Firmware services modeled."
+}

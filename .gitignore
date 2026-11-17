@@ -28,3 +28,13 @@ __pycache__/
 *.log
 .DS_Store
 Thumbs.db
+/.tools/
+/reports/**/*.log
+/reports/hardware-*/00-*.json
+/reports/hardware-*/01-*.json
+/reports/hardware-*/02-*.json
+/reports/hardware-*/0*-upload-*.json
+/reports/hardware-*/00-before.png
+/reports/hardware-*/10-main.png
+/reports/hardware-*/inputs.jsonl
+/reports/history/

@@ -1,0 +1,15 @@
+{
+  "result": "passed",
+  "scope": "Targeted font/loader firmware smoke, not a repeat of the full gameplay matrix",
+  "bda_sha256": "0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599",
+  "asset_pack_sha256": "0809eee524043a2ff96972b9c8a5bf585ff044a2d1ab3611839f7a45a4076f17",
+  "physical_device_used": false,
+  "game_ram_modified": false,
+  "checks": [
+    "native-loader",
+    "exact-linked-font-bytes",
+    "uniform-city-footer-480x272",
+    "normal-exit-desktop"
+  ],
+  "owned_qemu_stopped": true
+}

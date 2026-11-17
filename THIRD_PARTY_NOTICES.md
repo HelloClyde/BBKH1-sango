@@ -32,3 +32,12 @@ FFmpeg转换版本及参数见 `assets/music/manifest.json`。原FLAC母带保�
 
 升级包所含 SDK 编译部分采用上游提供的 Apache-2.0 许可选项，随包保留 SDK 的 NOTICE
 和完整 Apache-2.0 文本；这不改变原游戏及其素材的许可状态。
+
+## H1 移植来源
+
+- H1 适配基于 HelloClyde/BBK9588-sango 提交 8786793bd9c7c102b05b72cd9d88887d100ac60d；上述原作者、恢复代码与素材的许可缺项仍然适用。
+- 当前 H1 SDK 为 MrDefinition1999/bbk-h1-bda-sdk，固定 067fe072477861dfc8949d7b1a55279fb92d2548，Apache-2.0，正文与 NOTICE 保留在 sdk/，发行包附 LICENSES/H1-SDK-Apache-2.0.txt 及 H1-SDK-NOTICE.txt。
+- assets/h1-landscape/ 的母图通过内置 image_gen 生成，随后按 480×272 排版；来源和提示词随目录保存，原游戏派生内容不因此获得额外授权。
+- Noto Sans CJK SC 字体位于 assets/fonts/，来源 https://github.com/notofonts/noto-cjk ，SHA256 为 2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b，SIL OFL 1.1。h1/font.inc 为其栅格化输出。
+- H1 音频实现 h1/audio.c、audio.h 源自本工作区 src/platform/audio.c 的 H1 适配，GPL-2.0，完整源码随仓库提供。原游戏与其素材不因音频实现的许可获得额外授权。
+- reports/hardware-20261117/ 的截图来自物理 H1 / V1.41，其他截图来源按验证记录区分；包含的游戏内容不另行授予美术许可。

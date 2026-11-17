@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "bda_sha256": "0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599",
+  "type": "offline compiled-MIPS battle fixture",
+  "world": [
+    32,
+    32
+  ],
+  "display_tiles": [
+    20,
+    9
+  ],
+  "framebuffer": [
+    480,
+    272
+  ],
+  "screenshot": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\reports\\screenshots\\mips-native-battle.png",
+  "complete_battle_verified": false
+}

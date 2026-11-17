@@ -23,3 +23,11 @@ SDK 的许可不覆盖原游戏、字库、原图、`sango.LIB` 或固件。
 截图中含原游戏画面，GPT Image 图像也源于原图参考，均不作为 MIT 美术素材授权。
 
 来源、作者、未提供的许可及不分发内容见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+## H1 移植补充
+
+`h1/backend.c`、`h1/native_ui.c`、`h1/music.c`、`h1/entry.S`、H1 接口头文件和 H1 构建 / 素材 / 检查 Python 脚本采用 LICENSES/MIT.txt 中的 MIT 条款，版权人为 2026 BBKH1-sango contributors；恢复接口、数据布局和原作内容的既有权利不受此声明改变。
+
+`h1/audio.c`、`h1/audio.h` 来自本工作区 H1 音频实现，保留 GPL-2.0 许可，正文见 LICENSES/H1-audio-GPL-2.0.txt；不将其改称 MIT。`h1/font.inc` 和 assets/fonts/NotoSansCJKsc-Regular.otf 来自 Noto Sans CJK，使用 SIL OFL 1.1，正文见 LICENSES/Noto-OFL-1.1.txt。
+
+当前 sdk/ 已改为 MrDefinition1999/bbk-h1-bda-sdk 的固定提交 067fe072477861dfc8949d7b1a55279fb92d2548，沿用其 Apache-2.0 LICENSE / NOTICE，旧 9588 SDK 的说明仅描述上游历史。

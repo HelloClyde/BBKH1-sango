@@ -1,0 +1,14 @@
+{
+  "footer_pixels_match_firmware_reference": true,
+  "footer_comparison_box": [
+    0,
+    245,
+    480,
+    272
+  ],
+  "physical_size": [
+    480,
+    272
+  ],
+  "visual_review": "City title, both attribute columns and uniform footer text are complete; no clipping observed."
+}

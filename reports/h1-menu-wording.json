@@ -1,0 +1,43 @@
+{
+  "result": "passed",
+  "correction": {
+    "from": "新君登临",
+    "to": "新君登陆"
+  },
+  "reference": "assets/color/references/page-044.png",
+  "bda_sha256": "142fb8a6ecf8ec3e691180b0c9ba8e8b14942aaf44114ca783cb644a6b78215e",
+  "old_asset_pack_sha256": "04ab311d6bbf524964cedc9a11be43bc535c90debb936bf2d16e9786c412b0c4",
+  "new_asset_pack_sha256": "0809eee524043a2ff96972b9c8a5bf585ff044a2d1ab3611839f7a45a4076f17",
+  "changed_png_rectangles": {
+    "main-0.png": [
+      371,
+      78,
+      388,
+      96
+    ],
+    "main-1.png": [
+      371,
+      78,
+      388,
+      96
+    ],
+    "main-2.png": [
+      371,
+      78,
+      388,
+      96
+    ],
+    "main-3.png": [
+      371,
+      78,
+      388,
+      96
+    ]
+  },
+  "unchanged_pngs": [
+    "hud.png",
+    "panel.png",
+    "scenarios.png"
+  ],
+  "validation": "Production MIPS asset parsing and main-menu rendering passed. Every changed pixel is within the first menu label; BDA, other pages, and all game logic unchanged. Prior full-firmware business results are reused; no new full-firmware run."
+}
