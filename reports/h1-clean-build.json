@@ -1,0 +1,17 @@
+{
+  "source_commit": "4c28f79",
+  "sdk_commit": "067fe072477861dfc8949d7b1a55279fb92d2548",
+  "environment": {
+    "python": "3.11.5",
+    "Pillow": "12.3.0",
+    "pyelftools": "0.33",
+    "unicorn": "2.1.4"
+  },
+  "command": "python h1/build_h1.py --assets; python tools/verify_h1_release.py",
+  "result": "passed",
+  "bda_sha256": "0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599",
+  "all_seven_payloads_match_physical_device_evidence": true,
+  "business_tests": "Unchanged runtime payload; reuse recorded MIPS, firmware and physical results. GitHub Actions additionally runs its required offline checks.",
+  "font_regeneration": "passed: all 37865 glyphs and committed font.inc reproduced",
+  "landscape_regeneration": "passed: all 7 pages repack to the exact physical-tested H1R"
+}
