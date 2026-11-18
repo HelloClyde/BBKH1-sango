@@ -1,5 +1,7 @@
 # BBKH1-sango · 三国霸业 H1 横屏版
 
+> 工作区开发候选：**0.2.3-h1-popup**，指令与物品菜单已改为保留底图的小窗，父子菜单可并排展开。已通过离线 MIPS 检查，尚未进行本候选真机验证或发布；详见 [候选记录](reports/H1-POPUP-CANDIDATE.md)。下文的发布版本仍为 0.2.2。
+
 将 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango) 的 C 重建版移植到 **步步高 H1 / Y100 V1.41，480×272 横屏**。当前版本 **0.2.2-h1-savepath** 为预览版，未完成整场战斗与完整战役验收。
 
 原游戏恢复代码和派生素材未提供开放许可证；本仓库公开源码用于研究，不将整仓宣称为 MIT 授权。新增适配、音频、字库和 SDK 的许可分别见 [LICENSE.md](LICENSE.md) 与 [来源声明](THIRD_PARTY_NOTICES.md)。

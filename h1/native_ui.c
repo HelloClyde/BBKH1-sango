@@ -42,7 +42,7 @@ static int hit(int x,int y,int l,int t,int w,int h){return x>=l&&x<l+w&&y>=t&&y<
 static int next(int *x,int *y){int e[3];for(;;){sango_input_next_event(e);if(e[0]==5)return e[1];if(e[0]==SANGO_TOUCH_TAP){*x=sango_touch_x(e);*y=sango_touch_y(e);return -1;}if(e[0]==SANGO_TOUCH_PAN_END){int k=sango_touch_swipe_key(e);if(k)return k;}}}
 static void foot(const char *p){center(0,247,480,p,12,0xef57);}
 typedef struct {uint16_t *pixels;int active;unsigned screen;} Saved;
-static Saved save_screen(void){Saved s={h1_alloc(sizeof(h1_native_pixels)),h1_native_active,h1_screen_id};if(s.pixels)memcpy(s.pixels,h1_native_pixels,sizeof(h1_native_pixels));return s;}
+static Saved save_screen(void){Saved s={h1_alloc(sizeof(h1_native_pixels)),h1_native_active,h1_screen_id};if(s.pixels){if(!s.active&&h1_layout_game==2)h1_compose_battle();memcpy(s.pixels,h1_native_pixels,sizeof(h1_native_pixels));}return s;}
 static void restore(Saved s){if(s.pixels){memcpy(h1_native_pixels,s.pixels,sizeof(h1_native_pixels));h1_free(s.pixels);}h1_native_active=s.active;h1_screen_id=s.screen;h1_native_flip();}
 static void sprite_pixels(const uint8_t *p,int sw,int sh,int mask,int x,int y,int w,int h){
     const uint16_t *rgb=sango_color_pixels((unsigned)p,sw,sh,mask);unsigned flags=sango_color_frame_flags((unsigned)p,sw,sh,mask),stride=(sw+3)/4;
@@ -109,20 +109,40 @@ void sango_settings_show(void){
         if(action==3){uint8_t b[8]={'S','G','S',1,0,0,0,0};b[4]=sango_music_is_enabled();b[5]=sango_music_get_volume();b[7]=0xa5^b[4]^b[5];sango_settings_sdk_write(b,8);restore(saved);return;}
     }
 }
-static unsigned menu(char labels[][80],unsigned count,unsigned selected,const char *title){
-    int x=0,y=0;unsigned first=0;if(!count)return 255;
-    for(;;){if(selected<first)first=selected;if(selected>=first+7)first=selected-6;
-        page(title);for(unsigned row=0;row<7&&first+row<count;row++)button(68,49+row*25,344,23,labels[first+row],selected==first+row);
-        foot("上下选择 · 确定执行 · 返回取消");h1_native_flip();int key=next(&x,&y);
+static Saved *command_background;
+static unsigned command_left;
+static unsigned menu(char labels[][80],unsigned count,unsigned selected,const Saved *saved,int ax,int ay){
+    int x=0,y=0,w=76;unsigned first=0,visible=count<7?count:7;if(!count||!saved->pixels)return 255;
+    for(unsigned i=0;i<count;i++){int n=length(labels[i]);while(n&&labels[i][n-1]==' ')labels[i][--n]=0;if(n*7+24>w)w=n*7+24;}
+    if(count>visible)w+=8;if(w>228)w=228;
+    int h=visible*26+12;if(ax<8)ax=8;if(ax>472-w)ax=472-w;if(ay<7)ay=7;if(ay>232-h)ay=232-h;
+    for(;;){if(selected<first)first=selected;if(selected>=first+visible)first=selected-visible+1;
+        memcpy(h1_native_pixels,saved->pixels,sizeof(h1_native_pixels));h1_native_active=1;h1_screen_id=20;
+        box(ax+3,ay+3,w,h,0x3020);box(ax,ay,w,h,0xeed3);frame(ax,ay,w,h,0x820);frame(ax+2,ay+2,w-4,h-4,0xc58b);
+        for(unsigned row=0;row<visible;row++){
+            unsigned i=first+row;int yy=ay+6+row*26;if(i==selected)box(ax+5,yy,w-10-(count>visible?8:0),26,0xc58b);
+            char clipped[80];unsigned n=0;int pixels=0,limit=w-24-(count>visible?8:0);const unsigned char *p=(unsigned char *)labels[i];
+            while(*p){unsigned bytes=*p>=128&&p[1]?2:1;int advance=bytes==2?14:7;if(pixels+advance>limit)break;pixels+=advance;clipped[n++]=*p++;if(bytes==2)clipped[n++]=*p++;}clipped[n]=0;txt(ax+12,yy+6,clipped);
+        }
+        if(count>visible){int track=visible*26-4,thumb=track*visible/count;if(thumb<8)thumb=8;box(ax+w-9,ay+8,3,track,0xd5ec);box(ax+w-9,ay+8+(track-thumb)*first/(count-visible),3,thumb,0x8a65);}
+        h1_native_flip();int key=next(&x,&y);
         if(key==1)return 255;if(key==0x1c)return selected;
         if(key==0x67)selected=(selected+count-1)%count;if(key==0x6c)selected=(selected+1)%count;
-        if(key==-1&&hit(x,y,68,49,344,175)){unsigned n=first+(y-49)/25;if(n<count)return n;}
+        if(key==-1){if(!hit(x,y,ax,ay,w,h))return 255;if(hit(x,y,ax+5,ay+6,w-10-(count>visible?8:0),visible*26))return first+(y-ay-6)/26;}
     }
 }
 uint32_t sango_ui_choose_option(uint16_t *b,uint32_t initial,char *text){
-    Saved saved=save_screen();char rows[40][80];unsigned stride=(b[2]-b[0])/6;if(!stride)stride=1;unsigned count=length(text)/stride;if(count>40)count=40;
+    if(command_background){if(b[0]<command_left)command_left=b[0];if(b[0]==command_left)memcpy(h1_native_pixels,command_background->pixels,sizeof(h1_native_pixels));}
+    Saved saved=save_screen();if(!saved.pixels)return 255;char rows[40][80];unsigned stride=(b[2]-b[0])/6;if(!stride)stride=1;unsigned count=length(text)/stride;if(count>40)count=40;
     for(unsigned i=0;i<count;i++){unsigned n=stride<79?stride:79;memcpy(rows[i],text+i*stride,n);rows[i][n]=0;}
-    unsigned choice=menu(rows,count,initial<count?initial:0,"选择指令");restore(saved);return choice;
+    unsigned choice=menu(rows,count,initial<count?initial:0,&saved,b[0]*2-6,(int)b[1]-3);
+    if(command_background&&choice!=255)h1_free(saved.pixels);else restore(saved);return choice;
+}
+uint32_t sango_city_choose_command_legacy(void);
+uint32_t sango_city_choose_command(void){
+    Saved saved=save_screen();if(!saved.pixels)return 255;Saved *previous=command_background;unsigned previous_left=command_left;
+    command_background=&saved;command_left=65535;unsigned choice=sango_city_choose_command_legacy();
+    command_background=previous;command_left=previous_left;restore(saved);return choice;
 }
 uint32_t sango_ui_select_character(int ids,uint32_t count,uint32_t l,uint32_t t,uint8_t r,uint8_t b){
     (void)l;(void)t;(void)r;(void)b;if(!count)return 255;Saved saved=save_screen();unsigned selected=0,first=0;int x,y;char name[32];
@@ -138,7 +158,7 @@ uint32_t sango_ui_select_character(int ids,uint32_t count,uint32_t l,uint32_t t,
         if(key==-1&&hit(x,y,20,71,440,161)){unsigned i=first+(y-71)/23;if(i<count){restore(saved);return i;}}
     }
 }
-uint32_t sango_ui_select_item(int ids,uint32_t count,uint32_t l,uint32_t t,uint8_t r,uint8_t b){(void)l;(void)t;(void)r;(void)b;Saved saved=save_screen();char rows[40][80];if(count>40)count=40;for(unsigned i=0;i<count;i++)sango_item_read_name(((uint8_t *)ids)[i],rows[i]);unsigned result=menu(rows,count,0,"选择物品");restore(saved);return result;}
+uint32_t sango_ui_select_item(int ids,uint32_t count,uint32_t l,uint32_t t,uint8_t r,uint8_t b){(void)r;(void)b;Saved saved=save_screen();if(!saved.pixels)return 255;char rows[40][80];if(count>40)count=40;for(unsigned i=0;i<count;i++)sango_item_read_name(((uint8_t *)ids)[i],rows[i]);unsigned result=menu(rows,count,0,&saved,l*2-6,(int)t-3);restore(saved);return result;}
 uint32_t sango_ui_select_number(uint32_t initial,uint32_t maximum){
     Saved saved=save_screen();unsigned value=initial>maximum?maximum:initial,step=1;if(maximum>9999)maximum=9999;if(value>maximum)value=maximum;int x,y;
     for(;;){page("输入数量");h1_screen_id=8;txt(44,68,"上限");number(108,68,maximum,0x2983);txt(44,102,"每次调整");number(140,102,step,0x2983);

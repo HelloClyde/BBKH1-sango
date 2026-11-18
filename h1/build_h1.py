@@ -42,7 +42,7 @@ def prepare():
             text=text.replace('                    return 1;', '                    h1_layout_game = 1;\n                    return 1;')
             # Loaded sessions take the final return path.
             text=text.replace('    return 1;\n}', '    h1_layout_game = 1;\n    return 1;\n}',1)
-        overrides={'sango_menu_select_animated','sango_menu_choose_ruler','sango_menu_show_credits','sango_intro_open_menu',
+        overrides={'sango_menu_select_animated','sango_menu_choose_ruler','sango_menu_show_credits','sango_intro_open_menu','sango_city_choose_command',
             'sango_animation_play_resource','sango_settings_show','sango_ui_choose_option','sango_ui_select_character',
             'sango_ui_select_item','sango_ui_select_number','sango_ui_show_message','sango_ui_show_character_message',
             'sango_ui_show_city_details','sango_save_draw_slots','sango_save_choose_slot','sango_strategy_draw_map',
@@ -115,7 +115,7 @@ def main():
 
 def package():
     metadata=json.loads((DIST/'BUILD_INFO.json').read_text(encoding='utf8'))
-    metadata.update(version='0.2.2-h1-savepath',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
+    metadata.update(version='0.2.3-h1-popup',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
                     strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=20,
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
@@ -150,6 +150,12 @@ def package():
         if p.exists():files['reports/hardware-savepath-20261117/'+name]=p
     p=ROOT/'reports/h1-save-paths.json'
     if p.exists():files['reports/h1-save-paths.json']=p
+    for name in ('h1-popup-mips.json','H1-POPUP-CANDIDATE.md'):
+        p=ROOT/'reports'/name
+        if p.exists():files['reports/'+name]=p
+    for name in ('mips-popup-system.png','mips-popup-cascade.png'):
+        p=ROOT/'reports/screenshots'/name
+        if p.exists():files['reports/screenshots/'+name]=p
     with zipfile.ZipFile(DIST/'H1Sango-install.zip','w',zipfile.ZIP_DEFLATED) as z:
         for name,p in files.items():
             if p.exists():z.write(p,name)

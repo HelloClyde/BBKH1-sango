@@ -1,0 +1,26 @@
+{
+  "result": "passed",
+  "checks": [
+    "system popup is only 83x93 including shadow; map/HUD unchanged outside it",
+    "keyboard/touch/scroll/empty/initial selection case 1",
+    "keyboard/touch/scroll/empty/initial selection case 2",
+    "keyboard/touch/scroll/empty/initial selection case 3",
+    "keyboard/touch/scroll/empty/initial selection case 4",
+    "keyboard/touch/scroll/empty/initial selection case 5",
+    "keyboard/touch/scroll/empty/initial selection case 6",
+    "keyboard/touch/scroll/empty/initial selection case 7",
+    "keyboard/touch/scroll/empty/initial selection case 8",
+    "original city command mapping group 0",
+    "original city command mapping group 1",
+    "original city command mapping group 2",
+    "original city command mapping group 3",
+    "domestic submenu retains the selected parent; nested cancel restores the original map",
+    "outside touches dismiss child then parent without reaching the map",
+    "40 long GBK labels clip inside a bounded scrolled popup at the bottom/right edge",
+    "item picker uses the same small popup and preserves item index semantics",
+    "fresh battle composition captured before popup; inactive battle mode restored",
+    "snapshot allocation failure cancels without erasing the screen"
+  ],
+  "bda_sha256": "948be8e81f5c369c68c2db4eb2a143bbbf14d843e6c3cf80fcc748b2a8291250",
+  "scope": "Actual compiled MIPS popup/controller/render logic; native heap/input/display modeled. Not physical-device evidence."
+}
