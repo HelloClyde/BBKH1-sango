@@ -23,7 +23,9 @@ def prepare():
             text=p.read_text(encoding='utf8')
             if p.name=='sango_types.h': text=text.replace('/* The reconstructed ABI','extern unsigned char sango_legacy_blob[];\n/* The reconstructed ABI')
             if p.name=='sango_battle.h':text=text.replace('SANGO_BATTLE_VIEW_COLUMNS = 15','SANGO_BATTLE_VIEW_COLUMNS = 20').replace('SANGO_BATTLE_VIEW_ROWS = 13','SANGO_BATTLE_VIEW_ROWS = 9')
-            if p.name=='sango_statusbar.h':text=text.replace('SANGO_BATTLE_STATUS_HEIGHT = 24','SANGO_BATTLE_STATUS_HEIGHT = SANGO_STATUSBAR_TOP - SANGO_BATTLE_STATUS_TOP')
+            if p.name=='sango_statusbar.h':
+                text=text.replace('SANGO_BATTLE_STATUS_TOP = SANGO_BATTLE_MAP_HEIGHT,','SANGO_BATTLE_STATUS_TOP = SANGO_BATTLE_MAP_HEIGHT + 16,')
+                text=text.replace('SANGO_BATTLE_STATUS_HEIGHT = 24','SANGO_BATTLE_STATUS_HEIGHT = SANGO_STATUSBAR_TOP - SANGO_BATTLE_STATUS_TOP')
             (inc/p.name).write_text(relocate(text),encoding='utf8')
     old=(ROOT/'include/bda_sango_compat.h').read_text(encoding='utf8')
     declarations=re.findall(r'static inline ([^\{]+)\{',old)
@@ -50,14 +52,22 @@ def prepare():
             'sango_battle_info_show','sango_battle_show_overview'}
         for name in overrides:
             text=re.sub(r'(^\w[^\n;]*?\b)'+name+r'(\s*\([^;]*?\)\s*\{)',r'\1'+name+r'_legacy\2',text,flags=re.M)
-        if p.name=='controller.c':text=text.replace('    sango_music_set_scene(g_battle_control_mode', '    h1_layout_game=2; h1_native_active=0;\n    sango_music_set_scene(g_battle_control_mode')
+        if p.name=='controller.c':text=text.replace('    sango_music_set_scene(g_battle_control_mode', '    h1_layout_game=2; h1_native_active=0; h1_battle_camera_reset();\n    sango_music_set_scene(g_battle_control_mode')
         if p.parent.name=='battle':
             text=text.replace('g_battle_viewport_x + 0xf','g_battle_viewport_x + SANGO_BATTLE_VIEW_COLUMNS').replace('viewport_x + 0xf','viewport_x + SANGO_BATTLE_VIEW_COLUMNS')
             text=text.replace('* 0x10 & 0xff','* 0x10 & 0xffff')
-            if p.name=='field.c':text=text.replace('g_battle_viewport_y) * 0xf +','g_battle_viewport_y) * SANGO_BATTLE_VIEW_COLUMNS +')
-            if p.name=='overview.c':text=text.replace('(viewport_column & 0xff) < 0xf','(viewport_column & 0xff) < SANGO_BATTLE_VIEW_COLUMNS').replace('viewport_column & 0xf)', 'viewport_column & 0xff)')
-        if p.name=='sango_color.c':text=text.replace('screen_x >= 240','screen_x >= 320').replace('x >= 240','x >= 320')
-        if p.name=='sango_touch.c':text=text.replace('x >= 240 || y < 0 || y >= 320','x >= (h1_native_active ? 480 : 320) || y < 0 || y >= (h1_native_active ? 272 : 320)')
+            if p.name=='field.c':
+                text=text.replace('g_battle_viewport_y) * 0xf +','g_battle_viewport_y) * 21 +')
+                text=text.replace('>= SANGO_BATTLE_VIEW_COLUMNS ||','>= H1_BATTLE_DRAW_COLS ||').replace('>= SANGO_BATTLE_VIEW_ROWS)','>= H1_BATTLE_DRAW_ROWS)')
+                text=text.replace('g_battle_viewport_x + SANGO_BATTLE_VIEW_COLUMNS','g_battle_viewport_x + H1_BATTLE_DRAW_COLS')
+                text=text.replace('g_battle_viewport_y + SANGO_BATTLE_VIEW_ROWS','g_battle_viewport_y + H1_BATTLE_DRAW_ROWS')
+                text=text.replace('>= SANGO_BATTLE_MAP_WIDTH || y < 0 || y >= SANGO_BATTLE_MAP_HEIGHT','>= H1_BATTLE_DRAW_COLS * 16 || y < 0 || y >= H1_BATTLE_DRAW_ROWS * 16')
+            if p.name=='overview.c':
+                text=text.replace('(viewport_column & 0xff) < 0xf','(viewport_column & 0xff) < H1_BATTLE_DRAW_COLS').replace('(viewport_column & 0xf)', '(viewport_column & 0xff)')
+                text=text.replace('(viewport_row & 0xff) < SANGO_BATTLE_VIEW_ROWS','(viewport_row & 0xff) < H1_BATTLE_DRAW_ROWS')
+            if p.name=='player_turn.c':text=text.replace('screen_y < SANGO_BATTLE_MAP_HEIGHT','screen_y < H1_BATTLE_DRAW_ROWS * 16')
+        if p.name=='sango_color.c':text=text.replace('screen_x >= 240','screen_x >= H1_SURFACE_WIDTH').replace('x >= 240','x >= H1_SURFACE_WIDTH')
+        if p.name=='sango_touch.c':text=text.replace('x >= 240 || y < 0 || y >= 320','x >= 480 || y < 0 || y >= 272')
         dest=OUT/(p.parent.name+'_'+p.name)
         dest.write_text(text,encoding='utf8'); sources.append(dest)
     return inc,sources
@@ -91,7 +101,7 @@ def main():
     sources=[ROOT/'h1/entry.S',ROOT/'h1/backend.c',ROOT/'h1/native_ui.c',ROOT/'h1/music.c',ROOT/'h1/audio.c',*sources]
     data=build_bda(sources,'三国霸业',0x48,[inc,ROOT/'h1'],debug_elf=elf,
         icon_png=ROOT/'assets/app-icon/icon-0-32x32.png' if (ROOT/'assets/app-icon/icon-0-32x32.png').exists() else next((ROOT/'assets/app-icon').glob('icon-0-*.png')),
-        compiler_flags=['-std=gnu99','-fexec-charset=GBK','-fno-strict-aliasing','-fwrapv','-Wno-incompatible-pointer-types','-Wno-int-conversion','-Werror=implicit-function-declaration'])
+        defines=['SANGO_H1'],compiler_flags=['-std=gnu99','-fexec-charset=GBK','-fno-strict-aliasing','-fwrapv','-Wno-incompatible-pointer-types','-Wno-int-conversion','-Werror=implicit-function-declaration'])
     bda=DIST/'H1Sango.bda'; bda.write_bytes(data)
     validation=validate_bda(bda)
     assert validation['ok'],validation
@@ -118,6 +128,7 @@ def package():
     metadata.update(version='0.2.3-h1-ui',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
                     strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=24,
                     font_type='native WenQuanYi/Terminus BDF bitmap',title_integer_scale=2,
+                    strategy_vertical_scroll_pixels=120,battle_scroll_unit='lcd-pixel',
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     asset_root=ROOT/'assets/h1-landscape'
@@ -157,12 +168,19 @@ def package():
     for name in ('mips-popup-system.png','mips-popup-cascade.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
-    for name in ('h1-bitmap-font.json','H1-BITMAP-CANDIDATE.md'):
+    for name in ('h1-bitmap-font.json','H1-BITMAP-CANDIDATE.md','h1-pixel-scroll-mips.json','H1-PIXEL-SCROLL.md'):
         p=ROOT/'reports'/name
         if p.exists():files['reports/'+name]=p
     for name in ('mips-bitmap-main.png','mips-bitmap-settings.png','mips-bitmap-number.png','mips-uniform-city.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
+    for directory,names in (
+        ('hardware-bitmap-20261118',('physical-ui.json','domestic-popup.png','city.png')),
+        ('hardware-scroll-20261118',('physical-scroll.json','released.png')),
+    ):
+        for name in names:
+            p=ROOT/'reports'/directory/name
+            if p.exists():files[f'reports/{directory}/{name}']=p
     with zipfile.ZipFile(DIST/'H1Sango-install.zip','w',zipfile.ZIP_DEFLATED) as z:
         for name,p in files.items():
             if p.exists():z.write(p,name)

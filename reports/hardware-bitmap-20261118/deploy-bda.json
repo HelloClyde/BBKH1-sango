@@ -1,0 +1,150 @@
+{
+  "operation": "deploy",
+  "source": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\dist\\h1\\H1Sango.bda",
+  "target": "A:\\应用\\程序\\H1Sango.bda",
+  "bda": {
+    "path": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\dist\\h1\\H1Sango.bda",
+    "size": 2488384,
+    "title": "三国霸业",
+    "description": "H1 Native BDA SDK",
+    "category": 72,
+    "version": 16777474,
+    "file_size_minus_4": 2488380,
+    "payload_offset": 30812,
+    "resource_offset": 136,
+    "resource_sizes": [
+      6088,
+      9760,
+      5892,
+      8936
+    ],
+    "resources": [
+      {
+        "index": 0,
+        "start": 136,
+        "end": 6224,
+        "size": 6088,
+        "width": 45,
+        "height": 45,
+        "bits": 24,
+        "planes": 1,
+        "draw_width": 45,
+        "draw_height": 45
+      },
+      {
+        "index": 1,
+        "start": 6224,
+        "end": 15984,
+        "size": 9760,
+        "width": 57,
+        "height": 57,
+        "bits": 24,
+        "planes": 1,
+        "draw_width": 57,
+        "draw_height": 57
+      },
+      {
+        "index": 2,
+        "start": 15984,
+        "end": 21876,
+        "size": 5892,
+        "width": 49,
+        "height": 60,
+        "bits": 16,
+        "planes": 1,
+        "draw_width": 49,
+        "draw_height": 60
+      },
+      {
+        "index": 3,
+        "start": 21876,
+        "end": 30812,
+        "size": 8936,
+        "width": 49,
+        "height": 60,
+        "bits": 16,
+        "planes": 1,
+        "draw_width": 49,
+        "draw_height": 60
+      }
+    ],
+    "checksum": 5727,
+    "expected_checksum": 5727,
+    "checksum_ok": true,
+    "errors": [],
+    "warnings": [],
+    "ok": true
+  },
+  "completed": true,
+  "upload": {
+    "operation": "file_put",
+    "source": "C:\\Users\\ASUS\\AppData\\Local\\Temp\\h1-deploy-1nh80wb1\\H1Sango.bda",
+    "target": "A:\\应用\\程序\\H1Sango.bda",
+    "target_gbk_hex": "413a5cd3a6d3c35cb3ccd0f25c483153616e676f2e626461",
+    "phase": "done",
+    "completed": true,
+    "size": 2488384,
+    "crc32": 2114471374,
+    "sha256": "8431c0698cf73e0011c7155f5065b39094880f625e9edc128f919e8acb5234b4",
+    "token": 23,
+    "received": 2488384,
+    "status": {
+      "version": 1,
+      "state": 5,
+      "token": 23,
+      "size": 2488384,
+      "received": 2488384,
+      "expected_crc": 2114471374,
+      "actual_crc": 2114471374,
+      "verify_offset": 2488384,
+      "error": 0,
+      "fs_errno": 0,
+      "flags": 9,
+      "old_size": 3123296,
+      "old_crc": 3410412483,
+      "last_activity_tick": 9059308,
+      "step_count": 1988,
+      "reserved": 0,
+      "state_name": "done",
+      "error_name": "ok"
+    },
+    "paths": {
+      "target": "A:\\应用\\程序\\H1Sango.bda",
+      "temporary": "A:\\应用\\程序\\H1D00000017.TMP",
+      "backup": "A:\\应用\\程序\\H1D00000017.BAK"
+    },
+    "device_crc_verified": true,
+    "elapsed_seconds": 349.8289999999106,
+    "original_source": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\dist\\h1\\H1Sango.bda"
+  },
+  "refresh": {
+    "operation": "desktop_refresh",
+    "before": {
+      "job_id": 4,
+      "kind": 2,
+      "state": 4,
+      "error": 0,
+      "menu_idle": 1,
+      "app_index": 99,
+      "entry_count": 2,
+      "return_code": 1,
+      "state_name": "done"
+    },
+    "completed": true,
+    "request_sent": true,
+    "job_id": 5,
+    "status": {
+      "job_id": 5,
+      "kind": 1,
+      "state": 4,
+      "error": 0,
+      "menu_idle": 1,
+      "app_index": 4294967295,
+      "entry_count": 2,
+      "return_code": 0,
+      "state_name": "done"
+    },
+    "payload_started": false,
+    "elapsed_seconds": 0.125
+  }
+}

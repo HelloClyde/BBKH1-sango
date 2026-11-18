@@ -10,7 +10,8 @@ extern unsigned char sango_original_data[];
 extern unsigned int sango_original_data_size;
 int h1_layout_game;
 volatile unsigned int h1_diagnostic[16];
-typedef struct {uint16_t pixels[320*320]; unsigned fill,text,font,mode;int x,y;} Surface;
+enum {SURFACE_HEIGHT=320};
+typedef struct {uint16_t pixels[H1_SURFACE_WIDTH*SURFACE_HEIGHT]; unsigned fill,text,font,mode;int x,y;} Surface;
 static Surface window;
 static int guard,dirty,closed;
 static unsigned present_tick;
@@ -26,9 +27,9 @@ static void *fs(unsigned offset){return h1_runtime_entry(h1_runtime_table(H1_RUN
 static Surface *surface(unsigned context){return context>0x80000000u?(Surface *)context:&window;}
 static unsigned rgb(unsigned r,unsigned g,unsigned b){return ((r>>3)<<11)|((g>>2)<<5)|(b>>3);}
 static unsigned object(unsigned o){switch(o){case 15:return 65535;case 8:return 0xad55;case 7:return 0x528a;case 16:return 0;default:return o;}}
-static void pixel(Surface *s,int x,int y,unsigned c){if((unsigned)x<320&&(unsigned)y<320){s->pixels[y*320+x]=c;if(s==&window)dirty=1;}}
+static void pixel(Surface *s,int x,int y,unsigned c){if((unsigned)x<H1_SURFACE_WIDTH&&(unsigned)y<SURFACE_HEIGHT){s->pixels[y*H1_SURFACE_WIDTH+x]=c;if(s==&window)dirty=1;}}
 static void fill(Surface *s,int x,int y,int w,int h,unsigned c){
-    if(w<=0||h<=0)return;int r=x+w,b=y+h;if(x<0)x=0;if(y<0)y=0;if(r>320)r=320;if(b>320)b=320;
+    if(w<=0||h<=0)return;int r=x+w,b=y+h;if(x<0)x=0;if(y<0)y=0;if(r>H1_SURFACE_WIDTH)r=H1_SURFACE_WIDTH;if(b>SURFACE_HEIGHT)b=SURFACE_HEIGHT;
     for(int j=y;j<b;j++)for(int i=x;i<r;i++)pixel(s,i,j,c);
 }
 static int glyph(unsigned code){int lo=0,hi=sizeof(font_codes)/sizeof(*font_codes);while(lo<hi){int m=(lo+hi)/2;if(font_codes[m]<code)lo=m+1;else hi=m;}return lo<(int)(sizeof(font_codes)/sizeof(*font_codes))&&font_codes[lo]==code?lo:0;}
@@ -56,7 +57,18 @@ static void panel_text(volatile uint32_t *out,int x,int y,const char *label){
 static void rect32(volatile uint32_t *out,int x,int y,int w,int h,unsigned c){for(int j=y;j<y+h;j++)for(int i=x;i<x+w;i++)out[j*480+i]=c;}
 static const unsigned button_keys[6]={0x67,0x6c,0x69,0x6a,0x1c,1};
 void h1_compose_battle(void){
-    for(int y=0;y<216;y++)for(int x=0;x<480;x++)h1_native_pixels[y*480+x]=window.pixels[(y*2/3)*320+x*2/3];
+    for(int y=0;y<H1_BATTLE_HEIGHT;y++){
+        const uint16_t *row=window.pixels+((y+h1_battle_phase_y)*2/3)*H1_SURFACE_WIDTH;
+        uint16_t *out=h1_native_pixels+y*480;
+        int src=h1_battle_phase_x;
+        /* Three LCD pixels for every two legacy pixels, preserving the
+         * nearest-neighbor sampling phase as the camera moves one pixel. */
+        for(int x=0;x<480;x+=3,src+=3){
+            out[x]=row[src*2/3];
+            out[x+1]=row[(src+1)*2/3];
+            out[x+2]=row[(src+2)*2/3];
+        }
+    }
     h1_native_battle_hud();
 }
 static void present(int force){
@@ -74,10 +86,6 @@ static void present(int force){
 }
 __attribute__((noinline)) int h1_map_touch(int x,int y,int *sx,int *sy){
     if((unsigned)x>=480||(unsigned)y>=272)return 0;
-    if(!h1_native_active&&h1_layout_game==2){
-        if(y<216){*sx=x*2/3;*sy=y*2/3;return 1;}
-        *sx=x>=390?35:x>=320&&x<386?90:239;*sy=x>=390?280:240;return 1;
-    }
     *sx=x;*sy=y;return 1;
 }
 static int map_key(int key){switch(key){case 37:return 0x67;case 27:return 0x6c;case 40:case 26:return 0x69;case 35:case 28:return 0x6a;case 39:case 25:case 23:return 0x1c;case 24:case 41:return 1;default:return 0;}}
@@ -168,9 +176,9 @@ void bda_sango_gui_move_to(unsigned c,int x,int y){surface(c)->x=x;surface(c)->y
 void bda_sango_gui_line_to(unsigned c,int x,int y){Surface *s=surface(c);int a=s->x,b=s->y,dx=x>a?x-a:a-x,dy=y>b?b-y:y-b,ix=a<x?1:-1,iy=b<y?1:-1,e=dx+dy;while(1){pixel(s,a,b,s->fill);if(a==x&&b==y)break;int t=2*e;if(t>=dy){e+=dy;a+=ix;}if(t<=dx){e+=dx;b+=iy;}}s->x=x;s->y=y;}
 void bda_sango_gui_rectangle(unsigned c,int l,int t,int r,int b){bda_sango_gui_move_to(c,l,t);bda_sango_gui_line_to(c,r,t);bda_sango_gui_line_to(c,r,b);bda_sango_gui_line_to(c,l,b);bda_sango_gui_line_to(c,l,t);}
 void bda_sango_gui_circle(unsigned c,int x,int y,int r){int a=r,b=0,e=1-r;while(a>=b){int xx[8]={a,b,-b,-a,-a,-b,b,a},yy[8]={b,a,a,b,-b,-a,-a,-b};for(int i=0;i<8;i++)pixel(surface(c),x+xx[i],y+yy[i],surface(c)->fill);b++;if(e<0)e+=2*b+1;else{a--;e+=2*(b-a)+1;}}}
-int bda_sango_gui_draw_aux_rectangle(unsigned c,int x,int y,int w,int h){Surface *s=surface(c);for(int j=y;j<=y+h;j++)for(int i=x;i<=x+w;i++)if((unsigned)i<320&&(unsigned)j<320)pixel(s,i,j,s->pixels[j*320+i]^65535);return 1;}
+int bda_sango_gui_draw_aux_rectangle(unsigned c,int x,int y,int w,int h){Surface *s=surface(c);for(int j=y;j<=y+h;j++)for(int i=x;i<=x+w;i++)if((unsigned)i<H1_SURFACE_WIDTH&&(unsigned)j<SURFACE_HEIGHT)pixel(s,i,j,s->pixels[j*H1_SURFACE_WIDTH+i]^65535);return 1;}
 int bda_sango_gui_context_copy(unsigned src,int sx,int sy,int w,int h,unsigned dst,int dx,int dy,unsigned key){
-    Surface *a=surface(src),*b=surface(dst);if(w==240&&h==320)w=320;for(int y=0;y<h;y++)for(int x=0;x<w;x++)if((unsigned)(sx+x)<320&&(unsigned)(sy+y)<320){unsigned p=a->pixels[(sy+y)*320+sx+x];if(p!=key)pixel(b,dx+x,dy+y,p);}return 1;}
+    Surface *a=surface(src),*b=surface(dst);if(w==240&&h==320)w=H1_SURFACE_WIDTH;for(int y=0;y<h;y++)for(int x=0;x<w;x++)if((unsigned)(sx+x)<H1_SURFACE_WIDTH&&(unsigned)(sy+y)<SURFACE_HEIGHT){unsigned p=a->pixels[(sy+y)*H1_SURFACE_WIDTH+sx+x];if(p!=key)pixel(b,dx+x,dy+y,p);}return 1;}
 void bda_gui_render_picture(unsigned c,int x,int y,int w,int h,const bda_gui_picture_t *p){for(int j=0;j<h;j++)for(int i=0;i<w;i++)pixel(surface(c),x+i,y+j,p->source_pixels[(j*p->height/h)*p->width+i*p->width/w]);}
 int bda_sango_gui_render_region(unsigned c,int x,int y,int w,int h,int sw,int sh,void *desc,int sx,int sy){
     unsigned *d=desc;const unsigned char *p=(void *)d[5];int bits=((unsigned char *)desc)[16];
@@ -181,7 +189,7 @@ int bda_sango_gui_render_region(unsigned c,int x,int y,int w,int h,int sw,int sh
 int bda_sango_gui_bitmap_context(unsigned c,int x,int y,int w,int h,const void *p,unsigned m){(void)m;const unsigned char *b=p;for(int j=0;j<h;j++)for(int i=0;i<w;i++){unsigned v=(b[j*((w+3)/4)+i/4]>>(6-2*(i&3)))&3;pixel(surface(c),x+i,y+j,object(v==0?15:v==1?8:v==2?7:16));}return 1;}
 int bda_sango_gui_bitmap_buffer(int x,int y,int w,int h,const void *p,void *out,unsigned m){(void)x;(void)y;(void)m;memcpy(out,p,((w+3)/4)*h);return 1;}
 int bda_sango_gui_bitmap_crop(int sw,int sh,int x,int y,int w,int h,const void *src,void *dst){(void)sh;const unsigned char *a=src;unsigned char *b=dst;memset(b,0,((w+3)/4)*h);for(int j=0;j<h;j++)for(int i=0;i<w;i++){unsigned v=(a[(y+j)*((sw+3)/4)+(x+i)/4]>>(6-2*((x+i)&3)))&3;b[j*((w+3)/4)+i/4]|=v<<(6-2*(i&3));}return 1;}
-int bda_sango_gui_capture_region(int x,int y,int w,int h,void *p){uint16_t *d=p;for(int j=0;j<h;j++)for(int i=0;i<w;i++)*d++=(unsigned)(x+i)<320&&(unsigned)(y+j)<320?window.pixels[(y+j)*320+x+i]:0;return 1;}
+int bda_sango_gui_capture_region(int x,int y,int w,int h,void *p){uint16_t *d=p;for(int j=0;j<h;j++)for(int i=0;i<w;i++)*d++=(unsigned)(x+i)<H1_SURFACE_WIDTH&&(unsigned)(y+j)<SURFACE_HEIGHT?window.pixels[(y+j)*H1_SURFACE_WIDTH+x+i]:0;return 1;}
 int bda_sango_gui_restore_region(int x,int y,int w,int h,const void *p){const uint16_t *d=p;for(int j=0;j<h;j++)for(int i=0;i<w;i++)pixel(&window,x+i,y+j,*d++);return 1;}
 unsigned bda_gui_tick_count_25ms(void){return h1_raw_tick_80hz()/2;}
 unsigned bda_gui_window_timer_clock_ms(void){return h1_raw_tick_80hz()*25/2;}

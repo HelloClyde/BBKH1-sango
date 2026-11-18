@@ -1,0 +1,472 @@
+{
+  "result": "passed",
+  "physical_device_used": true,
+  "version": "0.2.3-h1-ui",
+  "sdk_commit": "067fe072477861dfc8949d7b1a55279fb92d2548",
+  "bda_sha256": "8431c0698cf73e0011c7155f5065b39094880f625e9edc128f919e8acb5234b4",
+  "asset_pack_sha256": "56d6d25156596277e10fd72ac0b33274cbd245b8a92a48baf00ef1ca96a39a40",
+  "checks": [
+    "linked-bitmap-font-strikes-match-deployed-bda",
+    "bitmap-main-scenario-and-city-rendered",
+    "system-popup-keeps-background-and-outside-touch-restores-full-map",
+    "command-and-domestic-cascade-preserve-selected-parent-and-support-escape",
+    "bitmap-numeric-panel-and-increment",
+    "save-menu-select-and-cancel-existing-save-load",
+    "normal-exit-desktop-and-h1debug-active"
+  ],
+  "states": {
+    "initial": {
+      "g_scenario_id": 1,
+      "g_player_character": 13,
+      "g_current_year": 190,
+      "g_current_month": 1,
+      "g_strategy_cursor_x": 7,
+      "g_strategy_cursor_y": 1,
+      "g_strategy_viewport_y": 0,
+      "g_character_table_address": 2185918996
+    }
+  },
+  "screenshots": {
+    "main": {
+      "token": 19,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9071941,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 439835,
+        "requests": 890,
+        "protocol_bytes_sent": 24920,
+        "protocol_bytes_received": 468315,
+        "elapsed_seconds": 22.25,
+        "decoded_bytes_per_second": 23471.460674157304,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 22.359999999869615,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\main.png",
+      "snapshot_sha256": "b8c8789fbd30f0b06429ec0cc8362fce8a8e815413d7425c40aea02c57476b2d",
+      "png_sha256": "be9217db489aa68081e83f9e393b4803bbd2960dda1469857a4e58f66706f35d"
+    },
+    "scenario": {
+      "token": 20,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9072872,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 295537,
+        "requests": 599,
+        "protocol_bytes_sent": 16772,
+        "protocol_bytes_received": 314705,
+        "elapsed_seconds": 14.968000000109896,
+        "decoded_bytes_per_second": 34890.43292331412,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 15.077999999979511,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\scenario.png",
+      "snapshot_sha256": "0bd4d26c631647e21f71ef8e683bd78225ed97af6f590384e7e7a51081233c0d",
+      "png_sha256": "d798644202912dca98ad62c827c77c17e4b23565af14c1029456bd8445023da8"
+    },
+    "map": {
+      "token": 21,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9073654,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 398072,
+        "requests": 806,
+        "protocol_bytes_sent": 22568,
+        "protocol_bytes_received": 423864,
+        "elapsed_seconds": 20.155999999959022,
+        "decoded_bytes_per_second": 25909.902758536504,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 20.25,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\map.png",
+      "snapshot_sha256": "f4ab5093402351f561523843e97b1b6bb49349dd08c7c83c9555baf933230958",
+      "png_sha256": "a12d7c0515decf4ef6631697bc941dd6ba700f999c56d20dd9536bcb7f32aa5b"
+    },
+    "city": {
+      "token": 22,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9074501,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 381933,
+        "requests": 773,
+        "protocol_bytes_sent": 21644,
+        "protocol_bytes_received": 406669,
+        "elapsed_seconds": 19.343999999808148,
+        "decoded_bytes_per_second": 26997.518610689596,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 19.437999999849126,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\city.png",
+      "snapshot_sha256": "9fbc753c0679b6cdd116dc874390869924a47b4b35cbbfb3dd6a161a6d204af1",
+      "png_sha256": "89840f414c0f1d2951742212cb6c36032f487e0b0f64fb00a5fd4b545f10238b"
+    },
+    "system-popup": {
+      "token": 23,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9075350,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 379408,
+        "requests": 768,
+        "protocol_bytes_sent": 21504,
+        "protocol_bytes_received": 403984,
+        "elapsed_seconds": 19.20299999997951,
+        "decoded_bytes_per_second": 27195.750663987772,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 19.29700000002049,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\system-popup.png",
+      "snapshot_sha256": "f68ba5ba7cfc9eeba4c921fb01dee5781a6c3ceba3e18174b7f07a9e9d48ec13",
+      "png_sha256": "50598404bc88044ad3d51eb7d0b0d5447a0515eac125ad2fdeb3487e78713fc8"
+    },
+    "restored-map": {
+      "token": 24,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9076158,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 398072,
+        "requests": 806,
+        "protocol_bytes_sent": 22568,
+        "protocol_bytes_received": 423864,
+        "elapsed_seconds": 20.155999999959022,
+        "decoded_bytes_per_second": 25909.902758536504,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 20.25,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\restored-map.png",
+      "snapshot_sha256": "f4ab5093402351f561523843e97b1b6bb49349dd08c7c83c9555baf933230958",
+      "png_sha256": "a12d7c0515decf4ef6631697bc941dd6ba700f999c56d20dd9536bcb7f32aa5b"
+    },
+    "command-popup": {
+      "token": 25,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9077007,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 373899,
+        "requests": 757,
+        "protocol_bytes_sent": 21196,
+        "protocol_bytes_received": 398123,
+        "elapsed_seconds": 18.936999999918044,
+        "decoded_bytes_per_second": 27577.757828708887,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 19.030999999959022,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\command-popup.png",
+      "snapshot_sha256": "2d57a63e11f9189abd8bc8c67ab9603360b7d4a4879a5a7fe992099e2ea1269b",
+      "png_sha256": "ea8b4da20e2aeacb38c8ec55160d7f01ea9519792ff497b76329fb902ae61594"
+    },
+    "domestic-popup": {
+      "token": 26,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9077803,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 330788,
+        "requests": 670,
+        "protocol_bytes_sent": 18760,
+        "protocol_bytes_received": 352228,
+        "elapsed_seconds": 16.75,
+        "decoded_bytes_per_second": 31178.507462686568,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 16.858999999938533,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\domestic-popup.png",
+      "snapshot_sha256": "a3037fc0585529d19dedaf9e39830c2995593bf164589ef94f23b1ba93cc8a3a",
+      "png_sha256": "335dd9d6ac4bc1c6a4000125cf23014177ec9a2f34856622586216eed154af37"
+    },
+    "number": {
+      "token": 27,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9078686,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 324802,
+        "requests": 658,
+        "protocol_bytes_sent": 18424,
+        "protocol_bytes_received": 345858,
+        "elapsed_seconds": 16.45299999997951,
+        "decoded_bytes_per_second": 31741.323770780426,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 16.54700000002049,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\number.png",
+      "snapshot_sha256": "b94ddd4265c888a0414d6514756c8b869fc3b798eefba5da5e258d2b4b87c73f",
+      "png_sha256": "9cb01f864cbd391d25a68adc19ab4ff13360b4b2850d74d576a733d820558053"
+    },
+    "number-plus": {
+      "token": 28,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9079383,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 324644,
+        "requests": 657,
+        "protocol_bytes_sent": 18396,
+        "protocol_bytes_received": 345668,
+        "elapsed_seconds": 16.437000000150874,
+        "decoded_bytes_per_second": 31772.221207958046,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 16.530999999959022,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\number-plus.png",
+      "snapshot_sha256": "c06d2bb66829e523456d17fb4854e248bd0c43a27041d2e40c661afcff2570dd",
+      "png_sha256": "5ba52e1a803e5fcfd29866ab69c6829393a071ae9bf42b9dd9e35451abbd07d1"
+    },
+    "load": {
+      "token": 29,
+      "width": 480,
+      "height": 272,
+      "stride": 1920,
+      "format": 2,
+      "total": 522240,
+      "source": 2710577152,
+      "tick": 9080338,
+      "codec": "rle",
+      "transfer": {
+        "codec": "rle",
+        "decoded_bytes": 522240,
+        "encoded_bytes": 215063,
+        "requests": 436,
+        "protocol_bytes_sent": 12208,
+        "protocol_bytes_received": 229015,
+        "elapsed_seconds": 10.905999999959022,
+        "decoded_bytes_per_second": 47885.567577660215,
+        "progress_callback": false,
+        "scope": "SCREEN_READ RPCs; protocol framing included, USB packet overhead excluded"
+      },
+      "capture_elapsed_seconds": 11.0,
+      "output": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\build\\bitmap-hardware\\load.png",
+      "snapshot_sha256": "72c551c1caddf4815796e73487ee64a0649f1b036490e2b420399af312191110",
+      "png_sha256": "e11d1213b989e7684d7309194ddc598c0a66f0ba1e1ba79e50edf5d45ede28c7"
+    }
+  },
+  "resident_image_id": "e14aaef1",
+  "identity": "H1DEBUG/1 V1.41 RESIDENT",
+  "port": "esp://COM6",
+  "status": {
+    "version": 1,
+    "state": 1,
+    "usb_configured": 1,
+    "usb_fault": 0,
+    "usb_resets": 3,
+    "commands": 59733,
+    "bad_frames": 0,
+    "tick": 9071922,
+    "poll_count": 24310752,
+    "last_poll_tick": 9071922,
+    "resident_base": 2186133728,
+    "resident_size": 727360,
+    "keys_low": 0,
+    "keys_high": 0,
+    "exec_state": 0,
+    "last_error": 0
+  },
+  "font_samples": {
+    "font12": 512,
+    "font14": 512,
+    "font16": 512,
+    "font24": 512
+  },
+  "save_files_before": [
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango0.sav",
+      "exists": 1,
+      "size": 3445,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango1.sav",
+      "exists": 1,
+      "size": 2898,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango2.sav",
+      "exists": 1,
+      "size": 3445,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango3.sav",
+      "exists": 1,
+      "size": 2898,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango4.sav",
+      "exists": 0,
+      "size": 0,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango5.sav",
+      "exists": 0,
+      "size": 0,
+      "is_directory": 0
+    }
+  ],
+  "system_popup_changed_bounds": [
+    152,
+    7,
+    235,
+    100
+  ],
+  "domestic_popup_changed_bounds": [
+    152,
+    7,
+    319,
+    208
+  ],
+  "desktop_after_exit": {
+    "job_id": 6,
+    "kind": 2,
+    "state": 4,
+    "error": 0,
+    "menu_idle": 1,
+    "app_index": 99,
+    "entry_count": 3,
+    "return_code": 1,
+    "state_name": "done"
+  },
+  "save_files_after": [
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango0.sav",
+      "exists": 1,
+      "size": 3445,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango1.sav",
+      "exists": 1,
+      "size": 2898,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango2.sav",
+      "exists": 1,
+      "size": 3445,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango3.sav",
+      "exists": 1,
+      "size": 2898,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango4.sav",
+      "exists": 0,
+      "size": 0,
+      "is_directory": 0
+    },
+    {
+      "path": "A:\\应用\\数据\\游戏\\sango5.sav",
+      "exists": 0,
+      "size": 0,
+      "is_directory": 0
+    }
+  ],
+  "final_status": {
+    "version": 1,
+    "state": 1,
+    "usb_configured": 1,
+    "usb_fault": 0,
+    "usb_resets": 3,
+    "commands": 67753,
+    "bad_frames": 0,
+    "tick": 9081034,
+    "poll_count": 27522796,
+    "last_poll_tick": 9081034,
+    "resident_base": 2186133728,
+    "resident_size": 727360,
+    "keys_low": 0,
+    "keys_high": 0,
+    "exec_state": 0,
+    "last_error": 0
+  }
+}

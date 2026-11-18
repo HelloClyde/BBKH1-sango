@@ -43,10 +43,7 @@ def main():
             assert bool(ok)==(x<480 and y<272)
             if ok:
                 mapped=struct.unpack('<II',m.read(BUFFER,8))
-                if native:assert mapped==(x,y)
-                elif y<216:assert mapped==(x*2//3,y*2//3)
-                elif x>=390:assert mapped==(35,280)
-                elif 320<=x<386:assert mapped==(90,240)
+                assert mapped==(x,y)
             checks+=1
     pack=(ROOT/'dist/h1/sango.h1r').read_bytes();address=0x81000000;m.write(address,pack)
     assert m.call('h1_ui_use_buffer',address,len(pack),instruction_limit=500000000)==1;checks+=1
@@ -63,11 +60,17 @@ def main():
     viewport=(ROOT/'tools/test_battle_viewport.py').read_text(encoding='utf8')
     viewport=viewport.replace("'build/sango.elf'","'build/h1/H1Sango.elf'").replace("'build/sango.lib'","'build/h1/sango.lib'").replace("'build/三国霸业.bda'","'dist/h1/H1Sango.bda'").replace("'build/battle-viewport-validation.json'","'reports/h1-landscape-battle.json'")
     viewport=viewport.replace('COLS, ROWS, TILE = 15, 13, 16','COLS, ROWS, TILE = 20, 9, 16')
+    viewport=viewport.replace(
+        "expected = b''.join(m.read(address+16+(top+row)*width+left, COLS)\n                                for row in range(ROWS))",
+        "expected = bytes(m.read(address+16+(top+row)*width+left+col, 1)[0] if top+row<height and left+col<width else 0\n"
+        "                             for row in range(10) for col in range(21))")
+    viewport=viewport.replace('COLS*ROWS','210').replace('index % COLS','index % 21').replace('index//COLS','index//21')
     viewport=viewport.replace('<= 208','<= 144').replace('== 195','== 135')
+    viewport=viewport.replace('args[1]+args[3] <= 144','args[1]+args[3] <= 160')
     viewport=viewport.replace('(0, 12, True), (14, 12, True)','(0, 8, True), (19, 8, True)').replace('(0, 13, False), (15, 0, False)','(0, 9, False), (20, 0, False)')
     viewport=viewport.replace('(0, 192, True), (224, 192, True), (0, 208, False)','(0, 128, True), (304, 128, True), (0, 144, False)').replace('(240, 0, False)','(320, 0, False)')
     viewport=viewport.replace('((12, True), (13, False), (15, False))','((8, True), (9, False), (11, False))').replace('if row == 12:','if row == 8:')
-    viewport=viewport.replace('[15, 13]','[20, 9]').replace('[0, 0, 240, 208]','[0, 0, 320, 144]').replace('195-tile','180-tile')
+    viewport=viewport.replace('[15, 13]','[20, 9]').replace('[0, 0, 240, 208]','[0, 0, 320, 144]').replace('195-tile','210-tile with clipped margin')
     ns={'__name__':'h1_landscape_viewport','__file__':str(ROOT/'tools/test_battle_viewport.py')};exec(compile(viewport,ns['__file__'],'exec'),ns);ns['main']()
     mm,_,_,_,_=ns['machine'](110);marks=[]
     mm.word(STATE['g_move_costs_address'],BUFFER+512);mm.write(BUFFER+512,bytes([1])*225)

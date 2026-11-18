@@ -18,6 +18,17 @@ void h1_ui_assets_free(void);
 void h1_ui_asset(unsigned int,int,int);
 void h1_native_battle_hud(void);
 void h1_compose_battle(void);
+enum {H1_BATTLE_TILE=24, H1_BATTLE_WIDTH=480, H1_BATTLE_HEIGHT=216, H1_SURFACE_WIDTH=336};
+extern int h1_battle_phase_x,h1_battle_phase_y;
+void h1_battle_camera_reset(void);
+int h1_battle_pan(const int *event);
+int h1_battle_map_point(const int *event,uint8_t *state);
+void h1_battle_toolbar_point(int *event);
+int sango_touch_started_in_map(int width,int height);
+#ifdef SANGO_H1
+#define H1_BATTLE_DRAW_COLS (SANGO_BATTLE_VIEW_COLUMNS+(h1_battle_phase_x!=0))
+#define H1_BATTLE_DRAW_ROWS (SANGO_BATTLE_VIEW_ROWS+(h1_battle_phase_y!=0))
+#endif
 void h1_strategy_hud(void);
 void *h1_compat_memset(void *,int,unsigned int);
 int bda_gui_event_pump_frame_once(bda_gui_message_t *,unsigned int);

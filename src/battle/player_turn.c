@@ -433,7 +433,9 @@ uint32_t sango_battle_poll_map_action(char preview_mode)
      * same input loop is entered through either keys or touch. */
     uint32_t legacy_timer_ticks = 0;
     uint32_t blink_phase = 0;
+#ifndef SANGO_H1
     int pan_remainder[3] = {0, 0, 0};
+#endif
     while (true)
     {
         sango_input_next_event(&event_kind);
@@ -492,6 +494,10 @@ uint32_t sango_battle_poll_map_action(char preview_mode)
         }
         else if (event_kind == SANGO_TOUCH_PAN || event_kind == SANGO_TOUCH_PAN_END)
         {
+#ifdef SANGO_H1
+            if (!h1_battle_pan(&event_kind))
+                continue;
+#else
             uint8_t map_state[4] = {g_battle_viewport_x, g_battle_viewport_y, g_battle_cursor_x,
                                     g_battle_cursor_y};
             if (sango_touch_pan_map(&event_kind, map_state, g_battle_map_width, g_battle_map_height,
@@ -502,6 +508,7 @@ uint32_t sango_battle_poll_map_action(char preview_mode)
                 g_battle_cursor_y = map_state[3];
                 sango_battle_draw_terrain(map_state[0], map_state[1]);
             }
+#endif
         }
         else if (event_kind == SANGO_TOUCH_HOLD)
             continue;
@@ -509,9 +516,13 @@ uint32_t sango_battle_poll_map_action(char preview_mode)
         {
             uint8_t map_state[4] = {g_battle_viewport_x, g_battle_viewport_y, g_battle_cursor_x,
                                     g_battle_cursor_y};
+#ifdef SANGO_H1
+            if (h1_battle_map_point(&event_kind, map_state))
+#else
             if (sango_touch_map_point(&event_kind, map_state, SANGO_BATTLE_VIEW_COLUMNS,
                                       SANGO_BATTLE_VIEW_ROWS, SANGO_BATTLE_MAP_WIDTH,
                                       SANGO_BATTLE_MAP_HEIGHT))
+#endif
             {
                 sango_battle_draw_tile(g_battle_cursor_x, g_battle_cursor_y, 0);
                 g_battle_cursor_x = map_state[2];
@@ -526,6 +537,11 @@ uint32_t sango_battle_poll_map_action(char preview_mode)
                 sango_battle_draw_cursor();
                 return 0;
             }
+#ifdef SANGO_H1
+            if (sango_touch_y(&event_kind) < H1_BATTLE_HEIGHT)
+                continue;
+            h1_battle_toolbar_point(&event_kind);
+#endif
             if (sango_touch_x(&event_kind) >= 28 && sango_touch_x(&event_kind) < 60 &&
                 sango_touch_y(&event_kind) >= SANGO_BATTLE_SUMMARY_TOP &&
                 sango_touch_y(&event_kind) < SANGO_BATTLE_SUMMARY_TOP + 36)

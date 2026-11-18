@@ -33,10 +33,10 @@
       115,
       116
     ],
-    "bda_sha256": "8431c0698cf73e0011c7155f5065b39094880f625e9edc128f919e8acb5234b4",
-    "scope": "Compiled MIPS real-map viewport copies, edge clamps, 180-tile painting, top-to-bottom scrolling/reachability, overlays and sprite/effect clipping; SDK rendering boundaries modeled. Not complete battle or hardware proof."
+    "bda_sha256": "f241c9a89bb7cdbdd51ac17c766cce69f9987802831dc5258918e4297672eb93",
+    "scope": "Compiled MIPS real-map viewport copies, edge clamps, 210-tile with clipped margin painting, top-to-bottom scrolling/reachability, overlays and sprite/effect clipping; SDK rendering boundaries modeled. Not complete battle or hardware proof."
   },
-  "bda_sha256": "8431c0698cf73e0011c7155f5065b39094880f625e9edc128f919e8acb5234b4",
+  "bda_sha256": "f241c9a89bb7cdbdd51ac17c766cce69f9987802831dc5258918e4297672eb93",
   "asset_pack_sha256": "56d6d25156596277e10fd72ac0b33274cbd245b8a92a48baf00ef1ca96a39a40",
   "scope": "Actual H1 MIPS native-coordinate mapping and contact timing, valid/corrupt native art pack parsing, full landscape UI render, seven real battle maps, and movement markers in newly visible columns. Firmware services modeled."
 }

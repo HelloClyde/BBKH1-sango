@@ -1,6 +1,6 @@
 {
   "result": "passed",
-  "bda_sha256": "0a01f0857197888377467c0a0865d920e22e87a94a853853f4cd56ad59841599",
+  "bda_sha256": "f241c9a89bb7cdbdd51ac17c766cce69f9987802831dc5258918e4297672eb93",
   "type": "offline compiled-MIPS battle fixture",
   "world": [
     32,

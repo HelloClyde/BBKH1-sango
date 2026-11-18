@@ -1,0 +1,38 @@
+{
+  "result": "passed",
+  "scope": "compiled MIPS controllers and pixel comparisons with modeled firmware services",
+  "strategy": {
+    "native_pixel_steps": [
+      9,
+      1
+    ],
+    "partial_row_hit": [
+      11,
+      6
+    ],
+    "retained_on_release": true
+  },
+  "battle": {
+    "native_pixel_steps": [
+      [
+        9,
+        9
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "partial_tile_hit": [
+      20,
+      9
+    ],
+    "world": [
+      32,
+      32
+    ],
+    "extra_edge_pixels_match_next_tile": true,
+    "retained_on_release": true
+  },
+  "bda_sha256": "f241c9a89bb7cdbdd51ac17c766cce69f9987802831dc5258918e4297672eb93"
+}

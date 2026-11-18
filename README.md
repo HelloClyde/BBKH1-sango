@@ -1,6 +1,6 @@
 # BBKH1-sango · 三国霸业 H1 横屏版
 
-> 工作区开发候选：**0.2.3-h1-ui**，小窗菜单配合文泉驿 / Terminus 原生点阵字库。已通过离线 MIPS 检查，尚未进行本候选真机验证或发布；详见 [点阵候选记录](reports/H1-BITMAP-CANDIDATE.md)。下文发布版本记录仍为 0.2.2。
+> 工作区开发候选 `0.2.3-h1-ui` 包含点阵字体、小窗菜单和双地图像素滚动。战略拖动已在 H1 验证，战斗拖动已通过离线 MIPS 检查。详见 [地图滚动验证](reports/H1-PIXEL-SCROLL.md)。下文发布版本记录为 0.2.2。
 
 将 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango) 的 C 重建版移植到 **步步高 H1 / Y100 V1.41，480×272 横屏**。当前版本 **0.2.2-h1-savepath** 为预览版，未完成整场战斗与完整战役验收。
 

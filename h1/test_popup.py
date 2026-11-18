@@ -19,13 +19,14 @@ def image(raw):
     return im
 
 class Harness:
-    def __init__(self):
+    def __init__(self, *, map_cache=False, real_battle=False):
         self.m = m = base.H1Machine(base.ELF)
         self.s = m.symbols
         self.pending = deque()
         self.frames = []
         self.allocations = {}
         self.fail_alloc = False
+        self.map_cache = map_cache
         self.battle_compositions = 0
         self.battle_frame = b'\x34\x12' * (480 * 272)
         lib = (R / 'dist/h1/sango.lib').read_bytes()
@@ -62,14 +63,17 @@ class Harness:
             self.battle_compositions += 1
             m.write(self.s['h1_native_pixels'], self.battle_frame)
             return 0
-        m.intercept('h1_compose_battle', 0, compose)
+        if not real_battle:
+            m.intercept('h1_compose_battle', 0, compose)
         m.write(B + 1024, bytes([0, 0, 7, 1]))
         m.call('sango_strategy_draw_map', B + 1024, 0, instruction_limit=30000000)
         self.background = self.pixels()
         self.reset()
 
     def allocate(self, args):
-        if self.fail_alloc: return 0
+        # The persistent map cache is optional and exercised by the map test.
+        if args[0] == 480 * 360 * 2 and self.map_cache: return 0x81900000
+        if self.fail_alloc or args[0] > 0x40000: return 0
         address = 0x81800000
         while address in self.allocations: address += 0x40000
         assert args[0] <= 0x40000

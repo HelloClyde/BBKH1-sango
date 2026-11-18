@@ -7,6 +7,8 @@ uint16_t h1_native_pixels[480*272];
 int h1_native_active=1;
 unsigned int h1_screen_id;
 static unsigned char *art;
+static uint16_t *strategy_terrain;
+static int strategy_y;
 static const uint16_t *images[7];
 static unsigned heights[7];
 static unsigned read32(const unsigned char *p){return p[0]|(unsigned)p[1]<<8|(unsigned)p[2]<<16|(unsigned)p[3]<<24;}
@@ -25,7 +27,7 @@ int h1_ui_assets_load(void){
     int ok=p&&h1_fread(p,1,n,f)==(unsigned)n&&h1_ui_use_buffer(p,n);h1_fclose(f);
     if(!ok){if(p)h1_free(p);return 0;}art=p;return 1;
 }
-void h1_ui_assets_free(void){if(art)h1_free(art);art=0;for(int i=0;i<7;i++)images[i]=0;}
+void h1_ui_assets_free(void){if(art)h1_free(art);art=0;if(strategy_terrain)h1_free(strategy_terrain);strategy_terrain=0;for(int i=0;i<7;i++)images[i]=0;}
 void h1_ui_asset(unsigned id,int x,int y){if(id>=7||!images[id])return;for(unsigned j=0;j<heights[id];j++)for(int i=0;i<480;i++)if((unsigned)(x+i)<480&&(unsigned)(y+j)<272)h1_native_pixels[(y+j)*480+x+i]=images[id][j*480+i];}
 static void box(int x,int y,int w,int h,unsigned c){for(int j=y;j<y+h;j++)for(int i=x;i<x+w;i++)if((unsigned)i<480&&(unsigned)j<272)h1_native_pixels[j*480+i]=c;}
 static void frame(int x,int y,int w,int h,unsigned c){box(x,y,w,1,c);box(x,y+h-1,w,1,c);box(x,y,1,h,c);box(x+w-1,y,1,h,c);}
@@ -44,14 +46,17 @@ static void foot(const char *p){center(0,247,480,p,12,0xef57);}
 typedef struct {uint16_t *pixels;int active;unsigned screen;} Saved;
 static Saved save_screen(void){Saved s={h1_alloc(sizeof(h1_native_pixels)),h1_native_active,h1_screen_id};if(s.pixels){if(!s.active&&h1_layout_game==2)h1_compose_battle();memcpy(s.pixels,h1_native_pixels,sizeof(h1_native_pixels));}return s;}
 static void restore(Saved s){if(s.pixels){memcpy(h1_native_pixels,s.pixels,sizeof(h1_native_pixels));h1_free(s.pixels);}h1_native_active=s.active;h1_screen_id=s.screen;h1_native_flip();}
-static void sprite_pixels(const uint8_t *p,int sw,int sh,int mask,int x,int y,int w,int h){
+static void blit_sprite(uint16_t *canvas,int height,const uint8_t *p,int sw,int sh,int mask,int x,int y,int w,int h){
     const uint16_t *rgb=sango_color_pixels((unsigned)p,sw,sh,mask);unsigned flags=sango_color_frame_flags((unsigned)p,sw,sh,mask),stride=(sw+3)/4;
     for(int j=0;j<h;j++)for(int i=0;i<w;i++){
         int sx=i*sw/w,sy=j*sh/h;unsigned gray=(p[sy*stride+sx/4]>>(6-2*(sx&3)))&3;
         if(mask&&!(flags&SANGO_COLOR_TRANSPARENT_ZERO)&&(gray&1))continue;
         unsigned c=rgb?rgb[sy*sw+sx]:(3-gray)*0x52aa;if((flags&SANGO_COLOR_TRANSPARENT_ZERO)&&!c)continue;
-        if((unsigned)(x+i)<480&&(unsigned)(y+j)<272)h1_native_pixels[(y+j)*480+x+i]=c;
+        if((unsigned)(x+i)<480&&(unsigned)(y+j)<(unsigned)height)canvas[(y+j)*480+x+i]=c;
     }
+}
+static void sprite_pixels(const uint8_t *p,int sw,int sh,int mask,int x,int y,int w,int h){
+    blit_sprite(h1_native_pixels,272,p,sw,sh,mask,x,y,w,h);
 }
 static void sprite(unsigned resource,unsigned index,int x,int y,int w,int h){
     const uint8_t *b=(const uint8_t *)sango_resource_item(resource,1,g_resource_package_address);if(!b||index>=b[4])return;
@@ -63,7 +68,7 @@ void sango_intro_open_menu(void){h1_draw_main(0);}
 uint32_t sango_animation_play_resource_legacy(uint16_t);
 uint32_t sango_animation_play_resource(uint16_t resource){if(resource==3){h1_draw_main(0);return 0xff;}return sango_animation_play_resource_legacy(resource);}
 uint32_t sango_menu_select_animated(uint16_t background,short base){
-    (void)base;int selected=0,x=0,y=0;h1_layout_game=0;
+    (void)base;int selected=0,x=0,y=0;h1_layout_game=0;strategy_y=0;
     for(;;){
         if(background==44)h1_draw_main(selected);
         else{h1_native_active=1;h1_screen_id=2;h1_ui_asset(5,0,0);frame(10+selected*116,49,112,182,0x821);frame(11+selected*116,50,110,180,0xff16);h1_native_flip();}
@@ -189,6 +194,12 @@ uint32_t sango_save_choose_slot(char load){
     }
 }
 static uint8_t *map_state;
+static int clamp_coordinate(int value,int min,int max){
+    if(value<min)return min;
+    if(value>max)return max;
+    return value;
+}
+enum {STRATEGY_TILE=40, STRATEGY_ROWS=9, STRATEGY_COLS=12, STRATEGY_HEIGHT=240};
 void h1_strategy_hud(void){
     box(0,240,480,32,0x3020);char name[32];sprite(g_scenario_id_view2+47,g_player_character,4,244,24,24);sango_load_named_text(g_player_character,name);h1_native_text(34,249,name,14,0xff16);
     number(108,249,g_current_year,0xff16);h1_native_text(140,249,"年",14,0xff16);number(166,249,g_current_month,0xff16);h1_native_text(187,249,"月",14,0xff16);
@@ -197,21 +208,52 @@ void h1_strategy_hud(void){
 }
 uint32_t sango_strategy_draw_map(uint8_t *state,uint8_t scroll){
     (void)scroll;h1_screen_id=13;map_state=state;h1_native_active=1;h1_layout_game=1;state[0]=0;
-    if(state[3]<state[1])state[1]=state[3];if(state[3]>=state[1]+6)state[1]=state[3]-5;if(state[1]>3)state[1]=3;
+    if(state[1]!=strategy_y/STRATEGY_TILE)strategy_y=clamp_coordinate(state[1]*STRATEGY_TILE,0,120);
+    if(state[3]<strategy_y/STRATEGY_TILE)strategy_y=state[3]*STRATEGY_TILE;
+    if(state[3]>(strategy_y+STRATEGY_HEIGHT-1)/STRATEGY_TILE)
+        strategy_y=(state[3]+1)*STRATEGY_TILE-STRATEGY_HEIGHT;
+    state[1]=strategy_y/STRATEGY_TILE;
     uint8_t *terrain=(uint8_t *)sango_resource_item(54,1,g_resource_package_address),*cities=(uint8_t *)sango_resource_item(2,14,g_resource_package_address);
-    for(int row=0;row<6;row++)for(int col=0;col<12;col++){
-        unsigned index=(state[1]+row)*12+col; sprite_pixels(terrain+6+index*256,32,32,0,col*40,row*40,40,40);
-        unsigned city=cities[index];if(city){unsigned owner=(&g_city_owner_one_based_view)[city*36];sprite(55,owner==g_player_character+1?8:owner?7:0,col*40+8,row*40+8,24,24);}
+    if(!strategy_terrain){
+        strategy_terrain=h1_alloc(480*STRATEGY_ROWS*STRATEGY_TILE*sizeof(*strategy_terrain));
+        if(strategy_terrain){
+            for(int row=0;row<STRATEGY_ROWS;row++){
+                for(int col=0;col<STRATEGY_COLS;col++){
+                    unsigned index=row*STRATEGY_COLS+col;
+                    blit_sprite(strategy_terrain,STRATEGY_ROWS*STRATEGY_TILE,terrain+6+index*256,32,32,0,col*40,row*40,40,40);
+                }
+            }
+        }
     }
-    int cx=state[2]*40,cy=(state[3]-state[1])*40;frame(cx+1,cy+1,38,38,0xff80);frame(cx+2,cy+2,36,36,0xff80);h1_strategy_hud();h1_native_flip();return cities[state[3]*12+state[2]];
+    if(strategy_terrain)memcpy(h1_native_pixels,strategy_terrain+strategy_y*480,480*STRATEGY_HEIGHT*sizeof(*strategy_terrain));
+    int last_row=(strategy_y+STRATEGY_HEIGHT-1)/STRATEGY_TILE;
+    for(int row=state[1];row<=last_row;row++)for(int col=0;col<STRATEGY_COLS;col++){
+        int y=row*STRATEGY_TILE-strategy_y;
+        unsigned index=row*STRATEGY_COLS+col;
+        if(!strategy_terrain)sprite_pixels(terrain+6+index*256,32,32,0,col*40,y,40,40);
+        unsigned city=cities[index];if(city){unsigned owner=(&g_city_owner_one_based_view)[city*36];sprite(55,owner==g_player_character+1?8:owner?7:0,col*40+8,y+8,24,24);}
+    }
+    int cx=state[2]*40,cy=state[3]*40-strategy_y;
+    frame(cx+1,cy+1,38,38,0xff80);frame(cx+2,cy+2,36,36,0xff80);
+    h1_strategy_hud();h1_native_flip();return cities[state[3]*12+state[2]];
 }
 void sango_strategy_present(void){h1_native_active=1;h1_native_flip();}
 uint32_t sango_strategy_select_city(uint8_t *s){
-    int x=0,y=0,pan_y=-1;unsigned selected=sango_strategy_draw_map(s,0);
+    int x=0,y=0;unsigned selected=sango_strategy_draw_map(s,0);
     for(;;){int e[3];sango_input_next_event(e);int k=e[0]==5?e[1]:0;
-        if(e[0]==SANGO_TOUCH_TAP){x=sango_touch_x(e);y=sango_touch_y(e);if(y<240){s[2]=x/40;s[3]=s[1]+y/40;selected=sango_strategy_draw_map(s,0);if(selected)return selected-1;continue;}if(x>=418)return 255;if(x>=358){Saved saved=save_screen();page("天下形势");h1_screen_id=14;sprite(47,0,114,47,252,192);h1_native_flip();next(&x,&y);restore(saved);continue;}if(x>=298&&selected)sango_ui_show_city_details(selected-1);continue;}
-        if(e[0]==SANGO_TOUCH_PAN){int delta=(int16_t)((unsigned)e[1]>>16);pan_y+=delta;if(pan_y>=28&&s[1]){s[1]--;pan_y=0;}if(pan_y<=-28&&s[1]<3){s[1]++;pan_y=0;}if(s[3]<s[1])s[3]=s[1];if(s[3]>=s[1]+6)s[3]=s[1]+5;selected=sango_strategy_draw_map(s,0);continue;}
-        if(e[0]==SANGO_TOUCH_PAN_END){pan_y=0;continue;}
+        if(e[0]==SANGO_TOUCH_TAP){x=sango_touch_x(e);y=sango_touch_y(e);if(y<240){s[2]=x/40;s[3]=(strategy_y+y)/40;selected=sango_strategy_draw_map(s,0);if(selected)return selected-1;continue;}if(x>=418)return 255;if(x>=358){Saved saved=save_screen();page("天下形势");h1_screen_id=14;sprite(47,0,114,47,252,192);h1_native_flip();next(&x,&y);restore(saved);continue;}if(x>=298&&selected)sango_ui_show_city_details(selected-1);continue;}
+        if(e[0]==SANGO_TOUCH_PAN || e[0]==SANGO_TOUCH_PAN_END){
+            if(!sango_touch_started_in_map(480,STRATEGY_HEIGHT))continue;
+            int delta=(int16_t)((unsigned)e[1]>>16);
+            int next_y=clamp_coordinate(strategy_y-delta,0,120);
+            if(next_y!=strategy_y){
+                strategy_y=next_y;
+                s[1]=strategy_y/STRATEGY_TILE;
+                s[3]=clamp_coordinate(s[3],s[1],(strategy_y+STRATEGY_HEIGHT-1)/STRATEGY_TILE);
+                selected=sango_strategy_draw_map(s,0);
+            }
+            continue;
+        }
         if(k==1)return 255;if(k==0x1c&&selected)return selected-1;
         if(k==0x69&&s[2])s[2]--;if(k==0x6a&&s[2]<11)s[2]++;if(k==0x67&&s[3])s[3]--;if(k==0x6c&&s[3]<8)s[3]++;
         if(k)selected=sango_strategy_draw_map(s,0);
@@ -222,15 +264,74 @@ void h1_native_battle_hud(void){
     button(320,220,66,28,"信息",0);button(390,220,80,28,"返回",0);
     h1_native_text(16,250,"方向移动 · 确定行动 · 返回菜单",12,0xef57);
 }
+static int battle_x,battle_y;
+int h1_battle_phase_x,h1_battle_phase_y;
+
+void h1_battle_camera_reset(void){
+    battle_x=0;
+    battle_y=0;
+    h1_battle_phase_x=0;
+    h1_battle_phase_y=0;
+}
+
+static void battle_position(int x,int y){
+    int max_x=(int)g_battle_map_width*H1_BATTLE_TILE-H1_BATTLE_WIDTH;
+    int max_y=(int)g_battle_map_height*H1_BATTLE_TILE-H1_BATTLE_HEIGHT;
+    battle_x=clamp_coordinate(x,0,max_x>0?max_x:0);
+    battle_y=clamp_coordinate(y,0,max_y>0?max_y:0);
+    h1_battle_phase_x=battle_x%H1_BATTLE_TILE;
+    h1_battle_phase_y=battle_y%H1_BATTLE_TILE;
+}
+
+int h1_battle_pan(const int *event){
+    if(!sango_touch_started_in_map(H1_BATTLE_WIDTH,H1_BATTLE_HEIGHT))return 0;
+    int old_x=battle_x,old_y=battle_y;
+    int dx=(int16_t)(unsigned)event[1],dy=(int16_t)((unsigned)event[1]>>16);
+    battle_position(old_x-dx,old_y-dy);
+    if(battle_x==old_x&&battle_y==old_y)return 0;
+    int x=battle_x/H1_BATTLE_TILE,y=battle_y/H1_BATTLE_TILE;
+    g_battle_cursor_x=clamp_coordinate(g_battle_cursor_x,x,(battle_x+H1_BATTLE_WIDTH-1)/H1_BATTLE_TILE);
+    g_battle_cursor_y=clamp_coordinate(g_battle_cursor_y,y,(battle_y+H1_BATTLE_HEIGHT-1)/H1_BATTLE_TILE);
+    if(x!=g_battle_viewport_x||y!=g_battle_viewport_y)sango_battle_draw_terrain(x,y);
+    return 1;
+}
+
+int h1_battle_map_point(const int *event,uint8_t *state){
+    int x=sango_touch_x(event),y=sango_touch_y(event);
+    if((unsigned)x>=H1_BATTLE_WIDTH||(unsigned)y>=H1_BATTLE_HEIGHT)return 0;
+    x=(battle_x+x)/H1_BATTLE_TILE;
+    y=(battle_y+y)/H1_BATTLE_TILE;
+    if(x>=g_battle_map_width||y>=g_battle_map_height)return 0;
+    state[2]=x;
+    state[3]=y;
+    return 1;
+}
+
+void h1_battle_toolbar_point(int *event){
+    int x=sango_touch_x(event),y=sango_touch_y(event);
+    if(y<H1_BATTLE_HEIGHT)return;
+    int legacy_x=x>=390?35:x>=320&&x<386?90:239;
+    int legacy_y=x>=390?280:240;
+    event[2]=legacy_x|(legacy_y<<16);
+}
+
 void sango_battle_copy_viewport_tiles(uint32_t x,uint32_t y){
     unsigned maxx=g_battle_map_width>20?g_battle_map_width-20:0,maxy=g_battle_map_height>9?g_battle_map_height-9:0;
     if(x>maxx)x=maxx;if(y>maxy)y=maxy;g_battle_viewport_x=x;g_battle_viewport_y=y;
+    /* Keep one cached margin of tiles even when aligned. An LCD-pixel
+     * movement inside this tile base then needs no terrain redraw. */
     unsigned map=sango_battle_resource_item(g_battle_map_resource,1);
-    for(unsigned row=0;row<9;row++)for(unsigned col=0;col<20;col++)((uint8_t *)g_viewport_tiles_address)[row*20+col]=(col+x<g_battle_map_width&&row+y<g_battle_map_height)?((uint8_t *)(map+16))[(row+y)*g_battle_map_width+col+x]:0;
+    for(unsigned row=0;row<10;row++)for(unsigned col=0;col<21;col++)
+        ((uint8_t *)g_viewport_tiles_address)[row*21+col]=(col+x<g_battle_map_width&&row+y<g_battle_map_height)?((uint8_t *)(map+16))[(row+y)*g_battle_map_width+col+x]:0;
 }
 void sango_battle_draw_terrain(uint32_t x,uint32_t y){
-    sango_battle_copy_viewport_tiles(x,y);unsigned tiles=sango_battle_resource_item(g_battle_tileset_resource,1);
-    for(unsigned row=0;row<9;row++)for(unsigned col=0;col<20;col++)sango_raster_draw_opaque(col*16,row*16,16,16,tiles+6+((uint8_t *)g_viewport_tiles_address)[row*20+col]*64,g_game_context);
+    sango_battle_copy_viewport_tiles(x,y);
+    int bx=g_battle_viewport_x,by=g_battle_viewport_y;
+    battle_position(battle_x/H1_BATTLE_TILE==bx?battle_x:bx*H1_BATTLE_TILE,
+                    battle_y/H1_BATTLE_TILE==by?battle_y:by*H1_BATTLE_TILE);
+    unsigned tiles=sango_battle_resource_item(g_battle_tileset_resource,1);
+    for(unsigned row=0;row<10;row++)for(unsigned col=0;col<21;col++)
+        sango_raster_draw_opaque(col*16,row*16,16,16,tiles+6+((uint8_t *)g_viewport_tiles_address)[row*21+col]*64,g_game_context);
 }
 void sango_battle_info_show(void){
     Saved saved=save_screen();unsigned unit=sango_battle_find_unit_at(g_battle_cursor_x,g_battle_cursor_y);

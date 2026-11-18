@@ -206,6 +206,14 @@ int sango_touch_map_point(const int *event, uint8_t *state, int columns, int row
     return 1;
 }
 
+#ifdef SANGO_H1
+int sango_touch_started_in_map(int width, int height)
+{
+    return (unsigned)contact.origin_x < (unsigned)width &&
+           (unsigned)contact.origin_y < (unsigned)height;
+}
+#endif
+
 int sango_touch_pan_map(const int *event, uint8_t *state, int world_width, int world_height,
                         int columns, int rows, int screen_width, int screen_height, int *remainder)
 {

@@ -1,0 +1,40 @@
+{
+  "operation": "file_put",
+  "source": "C:\\Users\\ASUS\\Documents\\ChatGPT\\bbk H1\\h1-sango\\dist\\h1\\sango.h1r",
+  "target": "A:\\应用\\数据\\游戏\\sango.h1r",
+  "target_gbk_hex": "413a5cd3a6d3c35ccafdbedd5cd3cecfb75c73616e676f2e683172",
+  "phase": "done",
+  "completed": true,
+  "size": 1620580,
+  "crc32": 558161692,
+  "sha256": "56d6d25156596277e10fd72ac0b33274cbd245b8a92a48baf00ef1ca96a39a40",
+  "token": 24,
+  "received": 1620580,
+  "status": {
+    "version": 1,
+    "state": 5,
+    "token": 24,
+    "size": 1620580,
+    "received": 1620580,
+    "expected_crc": 558161692,
+    "actual_crc": 558161692,
+    "verify_offset": 1620580,
+    "error": 0,
+    "fs_errno": 0,
+    "flags": 9,
+    "old_size": 1620580,
+    "old_crc": 558161692,
+    "last_activity_tick": 9069172,
+    "step_count": 1197,
+    "reserved": 0,
+    "state_name": "done",
+    "error_name": "ok"
+  },
+  "paths": {
+    "target": "A:\\应用\\数据\\游戏\\sango.h1r",
+    "temporary": "A:\\应用\\数据\\游戏\\H1D00000018.TMP",
+    "backup": "A:\\应用\\数据\\游戏\\H1D00000018.BAK"
+  },
+  "device_crc_verified": true,
+  "elapsed_seconds": 226.68700000015087
+}
