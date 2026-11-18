@@ -250,7 +250,7 @@ void h1_native_flip(void){dirty=1;present(1);}
 void h1_native_text(int x,int y,const char *label,int size,unsigned color){
     const unsigned char *p=(const unsigned char *)label;int ox=x;
     while(*p){unsigned code=*p++;if(code=='\n'){x=ox;y+=size+4;continue;}if(code>127&&*p)code=(code<<8)|*p++;
-        int n=glyph(code),w=code<128?size/2:size,stride=(size+7)/8;const unsigned char *bits=size==24?font24[n]:size==20?font20[n]:size==16?font16[n]:size==14?font14[n]:font12[n];
+        int n=glyph(code),w=code<128?size/2:size,stride=(size+7)/8;const unsigned char *bits=size==24?font24[n]:size==16?font16[n]:size==14?font14[n]:font12[n];
         for(int j=0;j<size+H1_FONT_EXTRA_ROWS;j++)for(int i=0;i<w;i++)if((unsigned)(x+i)<480&&(unsigned)(y+j-H1_FONT_TOP_PAD)<272&&(bits[j*stride+i/8]&(128>>(i&7))))h1_native_pixels[(y+j-H1_FONT_TOP_PAD)*480+x+i]=color;
         x+=w;
     }

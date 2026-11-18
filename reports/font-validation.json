@@ -1,22 +1,51 @@
 {
   "result": "passed",
+  "font_type": "native bitmap BDF",
   "cell_sizes": [
     12,
     14,
     16,
-    20,
     24
   ],
   "glyphs_per_size": 7573,
-  "uncropped_glyph_checks": 37865,
+  "uncropped_glyph_checks": 30292,
   "uniform_cjk_font_pixels": {
     "12": 12,
     "14": 14,
     "16": 16,
-    "20": 20,
     "24": 24
   },
   "extra_rows": 8,
   "top_pad": 4,
-  "method": "Uniform nominal CJK size and shared baseline per bank; extra vertical storage prevents clipping. Compare final bitmaps with oversized reference ink; wide symbols fit horizontally without changing font height."
+  "integer_scale": {
+    "12": 1,
+    "14": 1,
+    "16": 1,
+    "24": 2
+  },
+  "fractional_scaling": false,
+  "glyph_sources": {
+    "12:native-ascii": 95,
+    "12:native-cjk": 7473,
+    "12:composed-roman": 5,
+    "14:native-ascii": 95,
+    "14:native-cjk": 7466,
+    "14:composed-roman": 9,
+    "14:native-12px-fallback": 2,
+    "14:native-cjk-bearing-shift": 1,
+    "16:native-ascii": 95,
+    "16:native-cjk": 7478,
+    "24:native-ascii": 95,
+    "24:native-cjk": 7473,
+    "24:composed-roman": 5
+  },
+  "source_sha256": {
+    "ter-u12n.bdf": "9e942cad8173fddf34fc8a784e9ec6d2d4cfb8b82363faf65f43b236fe2f5a99",
+    "ter-u14n.bdf": "fb6aaad8bebe5ee824e914635b3f4e17a82f1673dea37f083e9adde285d7de32",
+    "ter-u16n.bdf": "5197662b22bf9f3e68d4af9f969a7fefa3edae40dd82ae969a147381130fb4ae",
+    "wenquanyi_12pt.bdf": "ff151cb88e43384993da04b202cf6b68331f6ffa4a0c14579ff80527dc15211b",
+    "wenquanyi_13px.bdf": "f6885d4238abcad1a3323d70916fb398dc6ac6743ce4a467e691e745ed5b0731",
+    "wenquanyi_9pt.bdf": "1a6565ed5242c7f0fb06078832f5c0af3ee284476bd4862ee02a4d7627ff28d8"
+  },
+  "method": "Copy original BDF ink at native 12/14/16px; 24px is exactly 2x12px. Verify all ink pixels fit, with no antialiasing, clipping, fractional scaling or per-character shrinking."
 }

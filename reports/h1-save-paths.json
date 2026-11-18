@@ -1,7 +1,7 @@
 {
   "result": "passed",
   "checks": 40,
-  "bda_sha256": "948be8e81f5c369c68c2db4eb2a143bbbf14d843e6c3cf80fcc748b2a8291250",
+  "bda_sha256": "8431c0698cf73e0011c7155f5065b39094880f625e9edc128f919e8acb5234b4",
   "directory": "A:\\应用\\数据\\游戏",
   "scope": "Compiled MIPS open/read-mode/write-mode/mkdir service calls; firmware filesystem modeled. Six save files share game-data with resources and settings."
 }

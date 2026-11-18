@@ -4,7 +4,7 @@
     480,
     272
   ],
-  "generation": "Built-in image_gen; generated/main-menu.png and generated/panel.png; typed native UI text via Noto Sans CJK",
+  "generation": "Built-in image_gen; generated/main-menu.png and generated/panel.png; native WenQuanYi/Terminus bitmap text, 12/14/16px and integer 2x12px titles",
   "assets": [
     {
       "name": "main-0",
@@ -12,7 +12,7 @@
         480,
         272
       ],
-      "png_sha256": "a465cb4bdfd6b2b5c2f0478900e5cedf5a564f8153da2e2df4e565fcb6bc2aa3"
+      "png_sha256": "8692dafe74892846b4d52cfd76b25a4675b39010129b56c10f51ff4e1918610c"
     },
     {
       "name": "main-1",
@@ -20,7 +20,7 @@
         480,
         272
       ],
-      "png_sha256": "d797e9c0d675bf86ae2db4db7a078bc39e7b516faf552b501677835226f9d8c5"
+      "png_sha256": "0ecd3a75c043bbd6cf7b0c2a7a423f081d83cef6dd3f2194f72d39db5eb25583"
     },
     {
       "name": "main-2",
@@ -28,7 +28,7 @@
         480,
         272
       ],
-      "png_sha256": "ff54b4fda30413cd3c444d0ef95756405b30d956d55f5142e4424f600194169f"
+      "png_sha256": "5b2d3b432ce66e73ed2ef39eb0d2da916ffb94a2a00cf888d2671eab17ea0436"
     },
     {
       "name": "main-3",
@@ -36,7 +36,7 @@
         480,
         272
       ],
-      "png_sha256": "49974d5b227f8be4ea3ef4598a63369d3796349b4922e00f884457ee05322d5d"
+      "png_sha256": "2e5577981852653441cdf6730ece5ea3a90fae12cba01f4ff95758d103039fa1"
     },
     {
       "name": "panel",
@@ -52,7 +52,7 @@
         480,
         272
       ],
-      "png_sha256": "f1623a452650435201112ccf2ef899eaa8ebb10fcac38e6a3272a6dd9c6fa52e"
+      "png_sha256": "f8a1c55fb7a30cb25d177e17e2f3c66b7a921c669dacb95982655f31bf13659a"
     },
     {
       "name": "hud",
@@ -64,5 +64,5 @@
     }
   ],
   "pack_bytes": 1620580,
-  "pack_sha256": "0809eee524043a2ff96972b9c8a5bf585ff044a2d1ab3611839f7a45a4076f17"
+  "pack_sha256": "56d6d25156596277e10fd72ac0b33274cbd245b8a92a48baf00ef1ca96a39a40"
 }

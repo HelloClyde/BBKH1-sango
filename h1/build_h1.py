@@ -115,8 +115,9 @@ def main():
 
 def package():
     metadata=json.loads((DIST/'BUILD_INFO.json').read_text(encoding='utf8'))
-    metadata.update(version='0.2.3-h1-popup',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
-                    strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=20,
+    metadata.update(version='0.2.3-h1-ui',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
+                    strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=24,
+                    font_type='native WenQuanYi/Terminus BDF bitmap',title_integer_scale=2,
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     asset_root=ROOT/'assets/h1-landscape'
@@ -154,6 +155,12 @@ def package():
         p=ROOT/'reports'/name
         if p.exists():files['reports/'+name]=p
     for name in ('mips-popup-system.png','mips-popup-cascade.png'):
+        p=ROOT/'reports/screenshots'/name
+        if p.exists():files['reports/screenshots/'+name]=p
+    for name in ('h1-bitmap-font.json','H1-BITMAP-CANDIDATE.md'):
+        p=ROOT/'reports'/name
+        if p.exists():files['reports/'+name]=p
+    for name in ('mips-bitmap-main.png','mips-bitmap-settings.png','mips-bitmap-number.png','mips-uniform-city.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
     with zipfile.ZipFile(DIST/'H1Sango-install.zip','w',zipfile.ZIP_DEFLATED) as z:

@@ -8,3 +8,6 @@
 *.yml text eol=lf
 *.png binary
 *.bin binary
+
+# Preserve vendored BDF source checksums exactly.
+*.bdf binary

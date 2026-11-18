@@ -1,0 +1,20 @@
+{
+  "result": "passed",
+  "bda_sha256": "8431c0698cf73e0011c7155f5065b39094880f625e9edc128f919e8acb5234b4",
+  "asset_pack_sha256": "56d6d25156596277e10fd72ac0b33274cbd245b8a92a48baf00ef1ca96a39a40",
+  "compiled_glyph_samples": 60,
+  "exact_integer_scale_checks": 7573,
+  "native_sizes": [
+    12,
+    14,
+    16
+  ],
+  "title_size": 24,
+  "fractional_scaling": false,
+  "screens": [
+    "main",
+    "settings-with-percent",
+    "number-input-1234"
+  ],
+  "scope": "Actual compiled MIPS font data and UI; heap/input/settings-write/display modeled. Not physical-device evidence."
+}

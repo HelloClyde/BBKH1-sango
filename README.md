@@ -1,6 +1,6 @@
 # BBKH1-sango · 三国霸业 H1 横屏版
 
-> 工作区开发候选：**0.2.3-h1-popup**，指令与物品菜单已改为保留底图的小窗，父子菜单可并排展开。已通过离线 MIPS 检查，尚未进行本候选真机验证或发布；详见 [候选记录](reports/H1-POPUP-CANDIDATE.md)。下文的发布版本仍为 0.2.2。
+> 工作区开发候选：**0.2.3-h1-ui**，小窗菜单配合文泉驿 / Terminus 原生点阵字库。已通过离线 MIPS 检查，尚未进行本候选真机验证或发布；详见 [点阵候选记录](reports/H1-BITMAP-CANDIDATE.md)。下文发布版本记录仍为 0.2.2。
 
 将 [HelloClyde/BBK9588-sango](https://github.com/HelloClyde/BBK9588-sango) 的 C 重建版移植到 **步步高 H1 / Y100 V1.41，480×272 横屏**。当前版本 **0.2.2-h1-savepath** 为预览版，未完成整场战斗与完整战役验收。
 
@@ -41,7 +41,7 @@ python h1/test_save_paths.py
 
 成品输出在 `dist/h1/`。安装脚本校验 GNU 15.2.0 工具链 ZIP 的 SHA256；已有工具链可用 `--cc PATH/TO/mipsel-none-elf-gcc.exe` 或 `H1_GNU_BIN` 指向其 bin 目录。`H1_SDK` 可覆盖 SDK 路径，正式发布固定为子模块提交。
 
-仓库已包含 Noto 字形表及横屏面板，普通构建无需图像生成服务。重新生成可执行 `python h1/make_font.py` 与 `python h1/prepare_landscape.py`，字体随 `assets/fonts/` 提供，采用 SIL OFL 1.1；`SANGO_FONT` 可覆盖字体路径。`build.py`、[README-9588.md](README-9588.md) 和原有 `tools/test_*.py` 保留上游 9588 工程历史，H1 入口以本页为准。
+仓库已包含字形表及横屏面板，普通构建无需图像生成服务。当前候选用 `python h1/make_font.py` 与 `python h1/prepare_landscape.py` 从 `assets/fonts/bitmap/` 的文泉驿 / Terminus 原生 BDF 重新编码和排字；各自许可见 LICENSE.md。`build.py`、[README-9588.md](README-9588.md) 和原有 `tools/test_*.py` 保留上游 9588 工程历史，H1 入口以本页为准。
 
 从 0.2.1 升级时，先备份旧 `A:\H1SANGO\` 中的存档，再按原名成对移入上述游戏目录；新版只读取新目录，不自动移动旧文件。详见[升级说明](releases/v0.2.2-h1-savepath.md)。
 
@@ -55,7 +55,7 @@ python h1/test_save_paths.py
 | 君主选择 | 战略地图 |
 | ![H1 真机君主选择](reports/hardware-20261117/13-ruler.png) | ![H1 真机地图](reports/hardware-20261117/14-map.png) |
 
-底栏统一 12px，正文 / 按钮 14px，标题 20px；所有汉字统一字号和基线，不逐字缩小。横屏素材重新布局，战略地图显示 12×6 格，战场绘制视口为 20×9 格。
+开发候选底栏为原生 12px 点阵，正文 / 按钮为原生 14px 点阵，标题 24px（2×12px）；所有汉字统一字号和基线，不逐字缩小。横屏素材重新布局，战略地图显示 12×6 格，战场绘制视口为 20×9 格。
 
 ## 依赖
 

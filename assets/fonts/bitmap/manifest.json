@@ -1,0 +1,33 @@
+{
+  "chinese": {
+    "name": "WenQuanYi Bitmap Song",
+    "source_version": "0.9.9.8 in 1.0.0~rc1 source package",
+    "url": "https://deb.debian.org/debian/pool/main/x/xfonts-wqy/xfonts-wqy_1.0.0~rc1.orig.tar.gz",
+    "archive_sha256": "af655fedfb490aabbb8ce73602a08a6a847fafc78dc363ff3901aa6c3384ca5d",
+    "license": "GPL-2.0 with upstream font embedding exception"
+  },
+  "ascii": {
+    "name": "Terminus Font",
+    "source_version": "4.49",
+    "url": "https://deb.debian.org/debian/pool/main/x/xfonts-terminus/xfonts-terminus_4.49.orig.tar.gz",
+    "archive_sha256": "d844fa91cf89ef9703cd0441748993f62c14051307843022d1c5e15388a27cff",
+    "license": "SIL OFL-1.1"
+  },
+  "native_pixels": [
+    12,
+    14,
+    16
+  ],
+  "title_pixels": 24,
+  "title_scale": 2,
+  "fractional_scaling": false,
+  "files": {
+    "ter-u12n.bdf": "9e942cad8173fddf34fc8a784e9ec6d2d4cfb8b82363faf65f43b236fe2f5a99",
+    "ter-u14n.bdf": "fb6aaad8bebe5ee824e914635b3f4e17a82f1673dea37f083e9adde285d7de32",
+    "ter-u16n.bdf": "5197662b22bf9f3e68d4af9f969a7fefa3edae40dd82ae969a147381130fb4ae",
+    "wenquanyi_12pt.bdf": "ff151cb88e43384993da04b202cf6b68331f6ffa4a0c14579ff80527dc15211b",
+    "wenquanyi_13px.bdf": "f6885d4238abcad1a3323d70916fb398dc6ac6743ce4a467e691e745ed5b0731",
+    "wenquanyi_9pt.bdf": "1a6565ed5242c7f0fb06078832f5c0af3ee284476bd4862ee02a4d7627ff28d8"
+  },
+  "compatibility": "Missing small-strike lowercase Roman compatibility numerals compose unscaled source Roman-letter pixels. Two missing 14px IPA glyphs use original 12px source pixels. Native 14px U+82EF has its negative left bearing moved right one pixel; no ink is removed."
+}

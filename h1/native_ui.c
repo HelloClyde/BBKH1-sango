@@ -35,7 +35,7 @@ static void center(int x,int y,int w,const char *p,int size,unsigned c){h1_nativ
 static void number(int x,int y,unsigned value,unsigned color){char s[16];sango_format_integer(value,(uint8_t *)s,10);h1_native_text(x,y,s,14,color);}
 static void page(const char *title){
     h1_native_active=1;h1_screen_id=20;if(!h1_ui_assets_load()){box(0,0,480,272,0xded1);}else h1_ui_asset(4,0,0);
-    center(0,11,480,title,20,0xff16);
+    center(0,8,480,title,24,0xff16);
 }
 static void button(int x,int y,int w,int h,const char *text,int selected){box(x,y,w,h,selected?0x7b84:0xd5ec);frame(x,y,w,h,0x8a65);if(selected)frame(x+2,y+2,w-4,h-4,0xff16);center(x,y+(h-14)/2,w,text,14,selected?0xffbc:0x2983);}
 static int hit(int x,int y,int l,int t,int w,int h){return x>=l&&x<l+w&&y>=t&&y<t+h;}
@@ -80,7 +80,7 @@ uint32_t sango_menu_choose_ruler(uint32_t count){
         txt(176,52,"势力分布");sprite(47,0,168,78,168,128);
         unsigned who=g_temp_character_ids_address[selected],scenario=g_scenario_id_view2;
         if(scenario>=1&&scenario<=4&&who<19&&ruler_portrait_frames[scenario-1][who]!=255)sprite(53,ruler_portrait_frames[scenario-1][who],370,66,72,72);else sprite(scenario+47,who,370,66,72,72);
-        sango_load_named_text(who,name);center(342,148,124,name,20,0x2983);
+        sango_load_named_text(who,name);center(342,148,124,name,24,0x2983);
         uint8_t cities[40];unsigned cities_count=sango_faction_list_cities(who,(int)cities);int positions=sango_resource_item(2,6,g_resource_package_address);
         for(unsigned i=0;i<cities_count;i++){uint8_t *p=(uint8_t *)positions+2*cities[i];frame(168+(p[0]*7+2)*2,78+(p[1]*7+2)*2,8,8,0xf800);}
         txt(354,181,"城池");number(410,181,cities_count,0x2983);
@@ -162,7 +162,7 @@ uint32_t sango_ui_select_item(int ids,uint32_t count,uint32_t l,uint32_t t,uint8
 uint32_t sango_ui_select_number(uint32_t initial,uint32_t maximum){
     Saved saved=save_screen();unsigned value=initial>maximum?maximum:initial,step=1;if(maximum>9999)maximum=9999;if(value>maximum)value=maximum;int x,y;
     for(;;){page("输入数量");h1_screen_id=8;txt(44,68,"上限");number(108,68,maximum,0x2983);txt(44,102,"每次调整");number(140,102,step,0x2983);
-        button(60,148,72,42,"－",0);box(150,135,180,62,0xeed3);frame(150,135,180,62,0x9285);char s[16];sango_format_integer(value,(uint8_t *)s,10);center(150,153,180,s,20,0x2983);button(348,148,72,42,"＋",0);
+        button(60,148,72,42,"－",0);box(150,135,180,62,0xeed3);frame(150,135,180,62,0x9285);char s[16];sango_format_integer(value,(uint8_t *)s,10);center(150,151,180,s,24,0x2983);button(348,148,72,42,"＋",0);
         button(254,211,98,28,"返回",0);button(364,211,98,28,"确定",1);foot("左右选步长 · 上下改数量 · 点击加减");h1_native_flip();int k=next(&x,&y);
         if(k==1||(k==-1&&hit(x,y,254,211,98,28))){restore(saved);return 65535;}if(k==0x1c||(k==-1&&hit(x,y,364,211,98,28))){restore(saved);return value;}
         if(k==0x69&&step<1000)step*=10;if(k==0x6a&&step>1)step/=10;

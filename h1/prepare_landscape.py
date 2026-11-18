@@ -1,13 +1,14 @@
 """Typeset and encode new landscape art; never alter the upstream asset set."""
 from pathlib import Path
-from PIL import Image,ImageDraw,ImageFont,ImageOps
-import hashlib,json,os,struct,zlib
+from PIL import Image,ImageDraw,ImageOps
+import hashlib,json,struct,zlib
 ROOT=Path(__file__).resolve().parents[1];ASSET=ROOT/'assets/h1-landscape'
-FONT=Path(os.environ.get('SANGO_FONT', ROOT/'assets/fonts/NotoSansCJKsc-Regular.otf'))
-def font(n):return ImageFont.truetype(str(FONT),n)
-def label(draw,box,value,size=20,color='#2c180d'):
-    x,y,w,h=box;f=font(size);b=draw.textbbox((0,0),value,font=f)
-    draw.text((x+(w-(b[2]-b[0]))/2,y+(h-(b[3]-b[1]))/2-b[1]),value,font=f,fill=color)
+from bitmap_font import text_mask,TOP_PAD
+
+def label(draw,box,value,size=16,color='#2c180d'):
+    x,y,w,h=box;mask=text_mask(value,size)
+    draw.bitmap((int(x+(w-mask.width)//2),int(y+(h-size)//2)-TOP_PAD),mask,fill=color)
+
 def main():
     out=ASSET/'native';out.mkdir(exist_ok=True)
     base=Image.open(ASSET/'generated/main-menu.png').convert('RGB').resize((480,272),Image.Resampling.LANCZOS)
@@ -19,14 +20,14 @@ def main():
         for i,(box,title) in enumerate(zip(main_rows,['新君登陆','重返沙场','游戏设置','卸甲归田'])):
             if i==selected:
                 x,y,w,h=box;d.rounded_rectangle((x-2,y-2,x+w+1,y+h+1),3,outline='#fff0ad',width=2)
-            label(d,box,title,18)
+            label(d,box,title,16)
         label(d,(8,251,464,17),'方向键选择 · 确定进入 · 返回取消',12,'#ead4a7')
         assets.append((f'main-{selected}',im))
     assets.append(('panel',panel))
     catalog=json.loads((ROOT/'assets/color/catalog.json').read_text('utf8'))
     f=next(f for f in catalog['frames'] if f['resource']==45)
     old=Image.open(ROOT/'assets/color'/f['color']).convert('RGB')
-    im=panel.copy();d=ImageDraw.Draw(im);label(d,(0,4,480,34),'选择历史时期',20,'#f6ddb1')
+    im=panel.copy();d=ImageDraw.Draw(im);label(d,(0,4,480,34),'选择历史时期',24,'#f6ddb1')
     titles=['董卓弄权','曹操崛起','赤壁之战','三国鼎立'];years=['公元190年','公元198年','公元208年','公元225年']
     for i in range(4):
         x=12+i*116;d.rectangle((x,51,x+107,228),fill='#d8b57d',outline='#7d5126',width=2)
@@ -45,6 +46,6 @@ def main():
         provenance.append({'name':name,'size':im.size,'png_sha256':hashlib.sha256(target.read_bytes()).hexdigest()})
     data+=struct.pack('<I',zlib.crc32(data))
     (out/'sango.h1r').write_bytes(data)
-    (ASSET/'manifest.json').write_text(json.dumps({'version':2,'target':[480,272],'generation':'Built-in image_gen; generated/main-menu.png and generated/panel.png; typed native UI text via Noto Sans CJK','assets':provenance,'pack_bytes':len(data),'pack_sha256':hashlib.sha256(data).hexdigest()},ensure_ascii=False,indent=2)+'\n',encoding='utf8')
+    (ASSET/'manifest.json').write_text(json.dumps({'version':2,'target':[480,272],'generation':'Built-in image_gen; generated/main-menu.png and generated/panel.png; native WenQuanYi/Terminus bitmap text, 12/14/16px and integer 2x12px titles','assets':provenance,'pack_bytes':len(data),'pack_sha256':hashlib.sha256(data).hexdigest()},ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     print('Native landscape assets:',len(assets),'pack bytes:',len(data))
 if __name__=='__main__':main()
