@@ -24,6 +24,6 @@
     115,
     116
   ],
-  "bda_sha256": "f241c9a89bb7cdbdd51ac17c766cce69f9987802831dc5258918e4297672eb93",
+  "bda_sha256": "aaa349e9033833ed09c12960e35a57da86bc8dbcf4f292ecaf9b0ab77900b6d2",
   "scope": "Compiled MIPS real-map viewport copies, edge clamps, 210-tile with clipped margin painting, top-to-bottom scrolling/reachability, overlays and sprite/effect clipping; SDK rendering boundaries modeled. Not complete battle or hardware proof."
 }

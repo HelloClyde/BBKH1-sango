@@ -128,6 +128,7 @@ def package():
     metadata.update(version='0.2.3-h1-ui',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
                     strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=24,
                     font_type='native WenQuanYi/Terminus BDF bitmap',title_integer_scale=2,
+                    main_title='GPT Image gold lettering',native_asset_version=3,ruler_portrait_count=33,
                     strategy_vertical_scroll_pixels=120,battle_scroll_unit='lcd-pixel',
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
@@ -172,6 +173,11 @@ def package():
         p=ROOT/'reports'/name
         if p.exists():files['reports/'+name]=p
     for name in ('mips-bitmap-main.png','mips-bitmap-settings.png','mips-bitmap-number.png','mips-uniform-city.png'):
+        p=ROOT/'reports/screenshots'/name
+        if p.exists():files['reports/screenshots/'+name]=p
+    report=ROOT/'reports/h1-landscape-art-mips.json'
+    if report.exists():files['reports/'+report.name]=report
+    for name in ('mips-art-main.png','mips-art-periods.png','mips-art-ruler-liubei.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
     for directory,names in (

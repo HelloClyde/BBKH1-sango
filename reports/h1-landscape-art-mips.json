@@ -1,0 +1,38 @@
+{
+  "result": "passed",
+  "menu_states": 4,
+  "period_tiles": 4,
+  "portrait_samples": [
+    [
+      1,
+      13,
+      4
+    ],
+    [
+      1,
+      1,
+      10
+    ],
+    [
+      2,
+      5,
+      22
+    ],
+    [
+      3,
+      6,
+      26
+    ],
+    [
+      4,
+      3,
+      32
+    ]
+  ],
+  "portrait_slots": 33,
+  "legacy_pack_accepted": true,
+  "invalid_deck_rejected": true,
+  "scope": "actual compiled MIPS menu and ruler rendering with modeled H1 services",
+  "bda_sha256": "aaa349e9033833ed09c12960e35a57da86bc8dbcf4f292ecaf9b0ab77900b6d2",
+  "h1r_sha256": "1387eb8ba369de02d868f066c6ddc471cc48f6521aacf4b58afaf78f043e688b"
+}
