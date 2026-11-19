@@ -63,6 +63,10 @@ def battle():
         m.call('h1_compose_battle',instruction_limit=30000000)
         return image(h.pixels())
     aligned = compose()
+    # At an even camera position the old 3:2 expansion repeated each first
+    # sample in a group of three. Native tiles retain detail between them.
+    assert sum(aligned.getpixel((x,y)) != aligned.getpixel((x+1,y))
+               for y in range(216) for x in range(0,480,3)) > 1000
     h.run('sango_battle_poll_map_action',[pan(-9,-9),pan(0,0,True),key(1)],0)
     # Remove the cursor so comparison covers the terrain itself.
     m.call('sango_battle_draw_tile',7,4,0)

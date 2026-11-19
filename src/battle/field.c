@@ -180,8 +180,12 @@ void sango_battle_advance_day(void)
             unit_stride_base = unit_or_food_text_id << 3;
         } while (unit_or_food_text_id < 0x14);
         sango_battle_change_weather();
+#ifdef SANGO_H1
+        h1_battle_show_day(g_battle_day);
+#else
         sango_battle_day_popup_draw((uint32_t)g_battle_day);
         sango_input_wait(0x32, '\0');
+#endif
         if (g_battle_defender_food_view2 == 0)
         {
             g_battle_result = '\x01';
@@ -478,6 +482,11 @@ void sango_battle_draw_tile(uint32_t map_x, uint32_t map_y, char draw_to_screen)
     screen_x = ((map_x & 0xff) - (uint32_t)g_battle_viewport_x) * 0x10 & 0xff;
     screen_y = ((short)(map_y & 0xff) - (uint16_t)g_battle_viewport_y) * 0x10 & 0xff;
     pixel_data_address = tileset_address + (uint32_t)tile_id * 0x40 + 6;
+#ifdef SANGO_H1
+    if (h1_battle_tile_art(tile_id, screen_x, screen_y,
+                           draw_to_screen ? g_draw_context : g_game_context))
+        return;
+#endif
     if (draw_to_screen == '\0')
     {
         sango_raster_draw_opaque(screen_x, screen_y, 0x10, 0x10, pixel_data_address,
@@ -769,6 +778,11 @@ void sango_battle_draw_bitmap(uint32_t resource_id, uint32_t frame_number, uint3
 {
     if ((x & 0xffff) >= SANGO_BATTLE_MAP_WIDTH || y < 0 || y >= SANGO_BATTLE_MAP_HEIGHT)
         return;
+#ifdef SANGO_H1
+    if (resource_id == 5 && frame_number &&
+        h1_battle_unit_art(frame_number - 1, x & 0xffff, y, g_game_context))
+        return;
+#endif
     sango_bitmap_draw_resource(resource_id & 0xffff, frame_number & 0xff, x & 0xffff, y, '\0');
     return;
 }

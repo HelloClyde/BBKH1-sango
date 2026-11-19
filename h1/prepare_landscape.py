@@ -21,6 +21,63 @@ def grid_cells(name, columns, rows):
             bottom=round((row+1)*sheet.height/rows)
             yield sheet.crop((left+3,top+3,right-3,bottom-3))
 
+def transparent_art(name):
+    with Image.open(ASSET/'generated'/name) as source:
+        sprite=source.convert('RGBA')
+    alpha=sprite.getchannel('A')
+    bounds=alpha.point(lambda a: 255 if a>=24 else 0).getbbox()
+    if bounds is None or alpha.getextrema()!=(0,255):
+        raise ValueError(f'{name} must include a transparent background')
+    return sprite.crop(bounds)
+
+
+def tinted_banner(banner, cloth):
+    # Preserve the brass pole and alpha, using the silk's shaded red region
+    # as the tint mask for the three ownership colors.
+    pixels=[]
+    for r,g,b,a in banner.getdata():
+        tint=max(0,min(1,(r-2*g+b-12)/28))
+        shade=(2*r+g+b)/520
+        rgb=[round(base*(1-tint)+min(255,target*shade)*tint)
+             for base,target in zip((r,g,b),cloth)]
+        pixels.append((*rgb,a))
+    image=Image.new('RGBA',banner.size)
+    image.putdata(pixels)
+    return ImageOps.contain(image,(7,14),Image.Resampling.LANCZOS)
+
+
+def strategy_banner_frames():
+    banner=ImageOps.contain(transparent_art('strategy-banner-hd.png'),(80,160),Image.Resampling.LANCZOS)
+    colors=((183,65,43),(55,113,174))  # Other ruler, player.
+    strip=Image.new('RGBA',(8,14*len(colors)))
+    for i,cloth in enumerate(colors):
+        strip.paste(tinted_banner(banner,cloth),(0,i*14))
+    return strip
+
+
+def credits_page():
+    with Image.open(ASSET/'generated/credits-landscape.png') as source:
+        page=source.convert('RGB').resize((480,272),Image.Resampling.LANCZOS)
+    with Image.open(ROOT/'assets/color/credits/credits-240x320.png') as source:
+        legacy=[source.crop(rect).convert('RGB') for rect in
+                ((167,146,202,181),(174,182,210,216),(172,229,207,264))]
+    with Image.open(ASSET/'generated/credits-helloclyde.png') as source:
+        author=source.convert('RGB').resize((46,46),Image.Resampling.LANCZOS)
+    portraits=[im.resize((46,46),Image.Resampling.NEAREST) for im in legacy]+[author]
+    draw=ImageDraw.Draw(page)
+    label(draw,(0,5,480,30),'制作群组',24,'#f6ddb1')
+    label(draw,(0,57,480,25),'策划  BBK gamegroup',16)
+    people=(('通宵虫','程序'),('南方小鬼','程序'),('Sunday','美工'),('HelloClyde','H1 移植'))
+    for x,avatar,(name,role) in zip((77,186,294,403),portraits,people):
+        draw.rounded_rectangle((x-26,108,x+25,159),radius=3,fill='#80603b',outline='#ddb27c')
+        page.paste(avatar,(x-23,111))
+        size=24 if name[0]>'\x7f' else 16
+        label(draw,(x-50,163,100,22),name,size)
+        label(draw,(x-50,186,100,15),role,12,'#634226')
+    label(draw,(0,246,480,20),'点击或按键返回',12,'#ead4a7')
+    return page
+
+
 def main():
     out=ASSET/'native';out.mkdir(exist_ok=True)
     base=Image.open(ASSET/'generated/main-menu.png').convert('RGB').resize((480,272),Image.Resampling.LANCZOS)
@@ -38,7 +95,7 @@ def main():
         for i,(box,title) in enumerate(zip(main_rows,['新君登陆','重返沙场','游戏设置','卸甲归田'])):
             if i==selected:
                 x,y,w,h=box;d.rounded_rectangle((x-2,y-2,x+w+1,y+h+1),3,outline='#fff0ad',width=2)
-            label(d,box,title,16)
+            label(d,box,title,24)
         label(d,(8,251,464,17),'方向键选择 · 确定进入 · 返回取消',12,'#ead4a7')
         assets.append((f'main-{selected}',im))
     assets.append(('panel',panel))
@@ -62,20 +119,30 @@ def main():
                              (0,i*portrait_size))
     assets.append(('ruler-portraits',portrait_strip))
 
-    data=bytearray(b'H1SGUI3\0'+struct.pack('<I',len(assets)))
+    with Image.open(ASSET/'generated/strategy-world-integrated.png') as source:
+        world=source.convert('RGB').resize((480,360),Image.Resampling.LANCZOS)
+    assets.append(('strategy-world',world))
+
+    assets.append(('strategy-banner',strategy_banner_frames()))
+    assets.append(('credits-landscape',credits_page()))
+
+    data=bytearray(b'H1SGUI7\0'+struct.pack('<I',len(assets)))
     provenance=[]
     for name,im in assets:
         target=out/(name+'.png');im.save(target)
         rgb=bytearray()
-        for r,g,b in im.getdata():rgb+=struct.pack('<H',((r>>3)<<11)|((g>>2)<<5)|(b>>3))
+        for r,g,b in im.convert('RGB').getdata():rgb+=struct.pack('<H',((r>>3)<<11)|((g>>2)<<5)|(b>>3))
+        if im.mode=='RGBA':rgb.extend(im.getchannel('A').tobytes())
         data+=struct.pack('<III',im.width,im.height,len(rgb))+rgb
         provenance.append({'name':name,'size':im.size,'png_sha256':hashlib.sha256(target.read_bytes()).hexdigest()})
     data+=struct.pack('<I',zlib.crc32(data))
-    assert len(data)<=2000000
+    assert len(data)<=2600000
     (out/'sango.h1r').write_bytes(data)
-    (ASSET/'manifest.json').write_text(json.dumps({'version':3,'target':[480,272],
+    (ASSET/'manifest.json').write_text(json.dumps({'version':7,'target':[480,272],
         'generation':'Built-in image_gen artwork; WenQuanYi/Terminus interface text',
         'ruler_deck':{'resource_order':53,'count':33,'size':[72,72]},
+        'strategy_art':{'world':[480,360],'cities_in_world':38,'banner':[8,14],
+                        'banner_frames':['other','player'],'banner_alpha':'8-bit plane after RGB565'},
         'generated_sources':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((ASSET/'generated').glob('*.png'))},
         'assets':provenance,'pack_bytes':len(data),'pack_sha256':hashlib.sha256(data).hexdigest()},ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     print('Native landscape assets:',len(assets),'pack bytes:',len(data))

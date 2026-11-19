@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 7,
   "target": [
     480,
     272
@@ -13,13 +13,33 @@
       72
     ]
   },
+  "strategy_art": {
+    "world": [
+      480,
+      360
+    ],
+    "cities_in_world": 38,
+    "banner": [
+      8,
+      14
+    ],
+    "banner_frames": [
+      "other",
+      "player"
+    ],
+    "banner_alpha": "8-bit plane after RGB565"
+  },
   "generated_sources": {
+    "credits-helloclyde.png": "a783c7f977de15efb63e610e6045f08df7975c048c04d36594a11235babefcdd",
+    "credits-landscape.png": "ed7a54f541a663a00314b5ca9e8b1e26cdbe74fba7ae6cd69e5acc6cc4c05d36",
     "main-menu.png": "a296c5fbf874623a2145395cf3bdae38ab94fed00d3754b510bf758c1e4f65e2",
     "panel.png": "c53a302a41893b5ded27a83c30adc02650b74fd1ea37093063bbd2dee2355586",
     "periods-hd.png": "7e1a4af9489bf5aa6d7707949069eadc7ea44ec09024252a8a36e49cd7ebc2ed",
     "rulers-hd-00.png": "128d763c899e1ab8131321b393ff1380e9d7ecb534998cae1653184cde2969b7",
     "rulers-hd-12.png": "f105ad5bd510073649b28eec90e72dbb71217a0210a7f6f3d89ced264572a346",
     "rulers-hd-24.png": "e13d7119a3fe58deaad818eeccf87e970e9a3b2fd96ed4a7958e455b2d034d2e",
+    "strategy-banner-hd.png": "f5c5d0d6ef235a6e407868bac6b585895f655d511663c455c72bfd1a3de67f94",
+    "strategy-world-integrated.png": "c2f722d6f80a26ba6cd8e33b430f57b96844e05499b020dcd1b100929e6ea0f1",
     "title-gold.png": "81cbd7dae5ee44966330c98109197826ad9ca3d4f7ffda55987e0b8b63092200"
   },
   "assets": [
@@ -29,7 +49,7 @@
         480,
         272
       ],
-      "png_sha256": "4a572ada872f0c8d68d44f447d4973c38f644d65c1fe86df328ab8cdf1a52961"
+      "png_sha256": "6e36f44fd56a38d41e1fa57e00f52d050870f5ba0a1f1655285d8c028390d384"
     },
     {
       "name": "main-1",
@@ -37,7 +57,7 @@
         480,
         272
       ],
-      "png_sha256": "c18b60bb6f2e088ac4d8e1c14e4d97e702d80154c41248adccd10068645c4c98"
+      "png_sha256": "879aad472ee5aa1e9b5aa3e0dd0e10508d7956527812f404c5351cc3fc5880d7"
     },
     {
       "name": "main-2",
@@ -45,7 +65,7 @@
         480,
         272
       ],
-      "png_sha256": "d8393673e58cc395bb10cfeccea927f1efc3a9a24894588f6aa0551e2a57918b"
+      "png_sha256": "53cc3c830b2e78ba387ffd99ec4a6e5feec68250ced0e7b0113a8fe0399bdc73"
     },
     {
       "name": "main-3",
@@ -53,7 +73,7 @@
         480,
         272
       ],
-      "png_sha256": "d8eefb3add3a7afe5eb520a624de817dc78e1c51fb4cf75f350414e0d89960e1"
+      "png_sha256": "93daab50e908177913da9b8ea960f39aad2c2a7bea968447f34bc1368214a424"
     },
     {
       "name": "panel",
@@ -69,7 +89,7 @@
         480,
         272
       ],
-      "png_sha256": "d96caf5636fc61d199fe9b11dfff455fad249b79a1268af6f634c0520149aaa7"
+      "png_sha256": "96f862c7018bd52accee22bd293f35430f7dca8ff6736263fe68f011a0a53af5"
     },
     {
       "name": "hud",
@@ -86,8 +106,32 @@
         2376
       ],
       "png_sha256": "9b32a0bd1a079c8c02fc234df612325fc9d604d105e954f4584927be22cf231e"
+    },
+    {
+      "name": "strategy-world",
+      "size": [
+        480,
+        360
+      ],
+      "png_sha256": "0baa1ae7b182ecb444609970ff0aad40e847249fe1a626d89fa075c86c79fb99"
+    },
+    {
+      "name": "strategy-banner",
+      "size": [
+        8,
+        28
+      ],
+      "png_sha256": "a1ce8c9e0d6e0a83464892e09c6df2498d5b0a6bd781b3b1f0350fefbce20d66"
+    },
+    {
+      "name": "credits-landscape",
+      "size": [
+        480,
+        272
+      ],
+      "png_sha256": "60f7925f2430b9bea3b16b0cd2efb44d4cf7c467e1c72776f909b9c4ec0b6942"
     }
   ],
-  "pack_bytes": 1962736,
-  "pack_sha256": "1387eb8ba369de02d868f066c6ddc471cc48f6521aacf4b58afaf78f043e688b"
+  "pack_bytes": 2570164,
+  "pack_sha256": "6e241a9d6c584670b9ad8861efc765f1ccfb9729c3ea2578ad045b3d8cb69fa1"
 }

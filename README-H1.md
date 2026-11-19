@@ -54,7 +54,7 @@ python h1/test_landscape.py
 python h1/render_battle_fixture.py
 ```
 
-重新排字用 `h1/prepare_landscape.py`，重新编码字体用 `h1/make_font.py`，读取 `assets/fonts/bitmap/` 中的原生 BDF。上游 LIB / CLR 素材改动时，构建加 `--assets`。私有固件验证工具为 `h1/verify.py` 和 `h1/accept_landscape.py`，需要匹配的 QEMU、内核和 NAND；历史本机路径不是运行包依赖。
+重新排字用 `h1/prepare_landscape.py`，重新编码字体用 `h1/make_font.py`，读取 `assets/fonts/` 中的原生 BDF 和马善政毛笔楷书。上游 LIB / CLR 素材改动时，构建加 `--assets`。战场地形与兵种由构建脚本从原始 16×16 帧和透明蒙版生成 24×24 帧。完整固件验证需要匹配的 QEMU、内核和 NAND。
 
 原上游代码保留在 `src/` 与 `include/`；适配在 `h1/`，生成文件在 `build/h1/`。原 `README.md` 介绍 9588 版本，本 H1 版以本文件为准。
 

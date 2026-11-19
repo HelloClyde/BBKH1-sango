@@ -19,12 +19,13 @@ def image(raw):
     return im
 
 class Harness:
-    def __init__(self, *, map_cache=False, real_battle=False):
+    def __init__(self, *, map_cache=False, real_battle=False, native_input=False):
         self.m = m = base.H1Machine(base.ELF)
         self.s = m.symbols
         self.pending = deque()
         self.frames = []
         self.allocations = {}
+        self.battle_canvases = set()
         self.fail_alloc = False
         self.map_cache = map_cache
         self.battle_compositions = 0
@@ -32,10 +33,12 @@ class Harness:
         lib = (R / 'dist/h1/sango.lib').read_bytes()
         art = (R / 'dist/h1/sango.h1r').read_bytes()
         clr = (R / 'dist/h1/sango.clr').read_bytes()
+        assert 0x81100000 + len(clr) <= base.UI_ADDRESS
+        assert base.UI_ADDRESS + len(art) <= 0x83C00000
         m.write(0x81000000, lib)
         m.word(base.module.STATE['g_resource_package_address'], 0x81000000)
-        m.write(0x81400000, art)
-        assert m.call('h1_ui_use_buffer', 0x81400000, len(art), instruction_limit=500000000) == 1
+        m.write(base.UI_ADDRESS, art)
+        assert m.call('h1_ui_use_buffer', base.UI_ADDRESS, len(art), instruction_limit=500000000) == 1
         m.write(0x81100000, clr)
         assert m.call('sango_color_use_buffer', 0x81100000, len(clr), len(lib), instruction_limit=300000000) == 1
         for name, address in [('g_character_table_address', 0x81601000), ('g_temp_character_ids_address', 0x81605000),
@@ -50,7 +53,8 @@ class Harness:
             assert self.pending, 'Unexpected extra input wait'
             m.write(args[0], struct.pack('<3I', *self.pending.popleft()))
             return 0
-        m.intercept('sango_input_next_event', 1, event)
+        if not native_input:
+            m.intercept('sango_input_next_event', 1, event)
         m.word(0x83c00010, 0x80800000)
         for i, (offset, fn) in enumerate([(8, self.allocate), (12, self.free)]):
             name = 'popup_heap_' + str(i)
@@ -74,6 +78,12 @@ class Harness:
         # The persistent map cache is optional and exercised by the map test.
         if args[0] == 480 * 360 * 2 and self.map_cache: return 0x81900000
         if self.fail_alloc or args[0] > 0x40000: return 0
+        if args[0] == 504 * 240 * 2:
+            address = 0x82400000
+            while address in self.battle_canvases: address += 0x40000
+            assert address < 0x82800000
+            self.battle_canvases.add(address)
+            return address
         address = 0x81800000
         while address in self.allocations: address += 0x40000
         assert args[0] <= 0x40000
@@ -81,6 +91,9 @@ class Harness:
         return address
 
     def free(self, args):
+        if args[0] in self.battle_canvases:
+            self.battle_canvases.remove(args[0])
+            return 0
         assert args[0] in self.allocations, ('unknown/double free', args[0])
         del self.allocations[args[0]]
         return 0
@@ -152,6 +165,22 @@ def main():
     assert h.pixels() == h.background
     image(child).save(screenshots / 'mips-popup-cascade.png')
     checks.append('domestic submenu retains the selected parent; nested cancel restores the original map')
+    for group in (1, 2):
+        def child_frame(events):
+            h.reset()
+            assert h.run('sango_city_choose_command', [*events, key(1), key(1)]) == 255
+            assert h.pixels() == h.background
+            right = (236, 7, 320, 130)
+            baseline = image(h.background).crop(right)
+            return next(frame for frame in h.frames
+                        if ImageChops.difference(image(frame).crop(right), baseline).getbbox())
+
+        keyboard = child_frame([key(0x6c)] * group + [key(0x1c)])
+        touched = child_frame([tap(180, 26 + 26 * group)])
+        assert touched == keyboard, 'The tapped parent row should remain highlighted under its submenu'
+        if group == 2:
+            image(touched).save(screenshots / 'mips-popup-military-cascade.png')
+    checks.append('touch and keyboard keep the same parent highlight for diplomacy and military submenus')
     h.reset()
     assert h.run('sango_city_choose_command', [tap(180, 26), tap(450, 230), tap(450, 230)]) == 255
     assert h.pixels() == h.background
@@ -178,6 +207,53 @@ def main():
     h.fail_alloc = True
     assert h.option(3, []) == 255 and h.pixels() == h.background
     checks.append('snapshot allocation failure cancels without erasing the screen')
+    h.fail_alloc = False
+
+    waits = []
+    dismiss = 0
+    def wait_message(args):
+        waits.append(args[:2])
+        return dismiss
+
+    h.m.intercept('sango_input_wait', 2, wait_message)
+    h.m.write(base.module.STATE['g_scenario_id'], b'\x01')
+
+    def note(text, wait=1, *, who=None):
+        h.reset()
+        waits.clear()
+        h.m.write(B+0x400, text.encode('gbk')+b'\0')
+        function = 'sango_ui_show_character_message' if who is not None else 'sango_ui_show_message'
+        call_args = (who,B+0x400) if who is not None else (B+0x400,wait)
+        h.run(function, [], *call_args)
+        assert h.pixels()==h.background
+        frames = [image(frame) for frame in h.frames[:-1]]
+        bounds = [ImageChops.difference(frame,image(h.background)).getbbox() for frame in frames]
+        assert all(32<=left<right<=448 and 0<=top<bottom<=240 for left,top,right,bottom in bounds)
+        return frames,bounds
+
+    frames,bounds = note('存档成功。', 1)
+    assert waits == [[40,1]] and len(bounds)==1
+    assert bounds[0][2]-bounds[0][0]<=115 and bounds[0][3]-bounds[0][1]<=45
+    frames[0].save(screenshots/'mips-popup-message.png')
+    frames,bounds = note('城中兵力与粮草均已整备。\r\n请主公下令。', who=13)
+    assert waits == [[100,1]] and len(bounds)==1 and bounds[0][3]-bounds[0][1]<90
+    frames[0].save(screenshots/'mips-popup-character-message.png')
+    long_note = '城中兵力已整备，粮草也已补齐。请主公下令。'*18+'已送达。'
+    frames,bounds = note(long_note, 2)
+    assert len(bounds)==3 and waits==[[80,1]]*3
+    assert max(right-left for left,_,right,_ in bounds)>300
+    assert bounds[-1][3]-bounds[-1][1]<bounds[0][3]-bounds[0][1]
+    dismiss = 1
+    _,bounds = note(long_note, 2)
+    assert len(bounds)==1 and waits==[[80,1]]
+    h.reset()
+    waits.clear()
+    h.m.write(B+0x400, '正在保存，请稍候。'.encode('gbk')+b'\0')
+    h.m.call('sango_ui_show_message', B+0x400, 0, instruction_limit=30000000)
+    assert not waits and not h.allocations and len(h.frames)==1
+    assert h.m.read(h.s['h1_screen_id'],4)==struct.pack('<I',12)
+    checks.append('strategy notes size to text, keep the portrait, paginate GBK, restore the map, and leave progress updates nonblocking')
+
     report = {'result': 'passed', 'checks': checks, 'bda_sha256': hashlib.sha256((R / 'dist/h1/H1Sango.bda').read_bytes()).hexdigest(),
               'scope': 'Actual compiled MIPS popup/controller/render logic; native heap/input/display modeled. Not physical-device evidence.'}
     (R / 'reports/h1-popup-mips.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf8')

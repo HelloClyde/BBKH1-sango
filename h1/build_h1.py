@@ -88,6 +88,8 @@ def main():
         library=(OUT/'sango.lib').read_bytes()
         color={'sha256':hashlib.sha256((OUT/'sango.clr').read_bytes()).hexdigest()}
     inc,sources=prepare()
+    from h1.prepare_battle_art import write_art
+    write_art(inc/'battle_art.inc',library,(OUT/'sango.clr').read_bytes())
     suffix='.exe' if os.name=='nt' else ''
     cc=args.cc or (Path(os.environ.get('H1_GNU_BIN', ROOT/'.toolchain/bin'))/('mipsel-none-elf-gcc'+suffix))
     cc=cc.resolve()
@@ -99,8 +101,9 @@ def main():
     from h1_bda.validate import validate_bda
     elf=OUT/'H1Sango.elf'
     sources=[ROOT/'h1/entry.S',ROOT/'h1/backend.c',ROOT/'h1/native_ui.c',ROOT/'h1/music.c',ROOT/'h1/audio.c',*sources]
+    launcher_icon=ROOT/'assets/app-icon/icon-h1.png'
     data=build_bda(sources,'三国霸业',0x48,[inc,ROOT/'h1'],debug_elf=elf,
-        icon_png=ROOT/'assets/app-icon/icon-0-32x32.png' if (ROOT/'assets/app-icon/icon-0-32x32.png').exists() else next((ROOT/'assets/app-icon').glob('icon-0-*.png')),
+        icon_png=launcher_icon,
         defines=['SANGO_H1'],compiler_flags=['-std=gnu99','-fexec-charset=GBK','-fno-strict-aliasing','-fwrapv','-Wno-incompatible-pointer-types','-Wno-int-conversion','-Werror=implicit-function-declaration'])
     bda=DIST/'H1Sango.bda'; bda.write_bytes(data)
     validation=validate_bda(bda)
@@ -115,6 +118,7 @@ def main():
         'sdk_commit':subprocess.check_output(['git','-C',str(SDK),'rev-parse','HEAD'],text=True).strip(),
         'compiler':subprocess.check_output([str(cc),'--version'],text=True).splitlines()[0],
         'bda_sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'validation':validation,'symbols':symbols,
+        'launcher_icon_sha256':hashlib.sha256(launcher_icon.read_bytes()).hexdigest(),
         'library_sha256':hashlib.sha256(library).hexdigest(),'color_sha256':color['sha256'],
         'inputs':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'h1').glob('*')), *sorted((ROOT/'src').rglob('*.c')), *sorted((ROOT/'include').glob('*.h'))] if p.is_file()}}
     (DIST/'BUILD_INFO.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
@@ -127,9 +131,15 @@ def package():
     metadata=json.loads((DIST/'BUILD_INFO.json').read_text(encoding='utf8'))
     metadata.update(version='0.2.3-h1-ui',native_asset_sha256=hashlib.sha256((DIST/'sango.h1r').read_bytes()).hexdigest(),
                     strategy_viewport=[12,6],battle_viewport=[20,9],body_font_pixels=14,title_font_pixels=24,
-                    font_type='native WenQuanYi/Terminus BDF bitmap',title_integer_scale=2,
-                    main_title='GPT Image gold lettering',native_asset_version=3,ruler_portrait_count=33,
+                    font_type='WenQuanYi/Terminus body bitmap and Ma Shan Zheng 1-bit titles',
+                    main_title='GPT Image gold lettering',main_option_font_pixels=24,
+                    native_asset_version=7,ruler_portrait_count=33,credits_landscape=[480,272],
+                    strategy_terrain_pixels=[480,360],strategy_cities_baked_into_world=True,strategy_banner_pixels=[8,14],
                     strategy_vertical_scroll_pixels=120,battle_scroll_unit='lcd-pixel',
+                    battle_art={'tile_pixels':[24,24],'terrain_frames':46,'unit_frames':32,
+                                'embedded_in_bda':True,'source_pixels':[16,16],
+                                'source_lib_sha256':metadata['library_sha256'],
+                                'source_clr_sha256':metadata['color_sha256']},
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     asset_root=ROOT/'assets/h1-landscape'
@@ -166,18 +176,25 @@ def package():
     for name in ('h1-popup-mips.json','H1-POPUP-CANDIDATE.md'):
         p=ROOT/'reports'/name
         if p.exists():files['reports/'+name]=p
-    for name in ('mips-popup-system.png','mips-popup-cascade.png'):
+    for name in ('mips-popup-system.png','mips-popup-cascade.png','mips-popup-message.png','mips-popup-character-message.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
     for name in ('h1-bitmap-font.json','H1-BITMAP-CANDIDATE.md','h1-pixel-scroll-mips.json','H1-PIXEL-SCROLL.md'):
         p=ROOT/'reports'/name
         if p.exists():files['reports/'+name]=p
-    for name in ('mips-bitmap-main.png','mips-bitmap-settings.png','mips-bitmap-number.png','mips-uniform-city.png'):
+    for name in ('mips-bitmap-main.png','mips-bitmap-settings.png','mips-bitmap-number.png','mips-uniform-city.png',
+                 'mips-brush-title-city.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
-    report=ROOT/'reports/h1-landscape-art-mips.json'
-    if report.exists():files['reports/'+report.name]=report
-    for name in ('mips-art-main.png','mips-art-periods.png','mips-art-ruler-liubei.png'):
+    for name in ('h1-landscape-art-mips.json','h1-faction-map-mips.json','h1-list-scroll-mips.json',
+                 'h1-strategy-hd-mips.json'):
+        p=ROOT/'reports'/name
+        if p.exists():files['reports/'+name]=p
+    for name in ('mips-art-main.png','mips-art-periods.png','mips-art-ruler-liubei.png','mips-art-credits.png',
+                 'mips-art-select-character.png',
+                 'mips-faction-ruler.png','mips-faction-overview.png','mips-frame-save-slots.png',
+                 'mips-list-scroll-ruler.png','mips-list-scroll-popup.png',
+                 'mips-strategy-hd-north.png','mips-strategy-hd-south.png','strategy-gpt-image-design.png'):
         p=ROOT/'reports/screenshots'/name
         if p.exists():files['reports/screenshots/'+name]=p
     for directory,names in (

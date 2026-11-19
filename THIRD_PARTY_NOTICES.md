@@ -38,10 +38,12 @@ FFmpeg转换版本及参数见 `assets/music/manifest.json`。原FLAC母带保�
 - H1 适配基于 HelloClyde/BBK9588-sango 提交 8786793bd9c7c102b05b72cd9d88887d100ac60d；上述原作者、恢复代码与素材的许可缺项仍然适用。
 - 当前 H1 SDK 为 MrDefinition1999/bbk-h1-bda-sdk，固定 067fe072477861dfc8949d7b1a55279fb92d2548，Apache-2.0，正文与 NOTICE 保留在 sdk/，发行包附 LICENSES/H1-SDK-Apache-2.0.txt 及 H1-SDK-NOTICE.txt。
 - assets/h1-landscape/ 的母图通过内置 image_gen 生成，随后按 480×272 排版；来源和提示词随目录保存，原游戏派生内容不因此获得额外授权。
-- Noto Sans CJK SC 字体位于 assets/fonts/，来源 https://github.com/notofonts/noto-cjk ，SHA256 为 2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b，SIL OFL 1.1。h1/font.inc 为其栅格化输出。
+- 早期 H1 字库采用 Noto Sans CJK SC。源字体保存在 assets/fonts/，SHA256 为 2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b，SIL OFL 1.1。[Noto CJK 源文件](https://github.com/notofonts/noto-cjk)
 - H1 音频实现 h1/audio.c、audio.h 源自本工作区 src/platform/audio.c 的 H1 适配，GPL-2.0，完整源码随仓库提供。原游戏与其素材不因音频实现的许可获得额外授权。
 - reports/hardware-20261117/ 的截图来自物理 H1 / V1.41，其他截图来源按验证记录区分；包含的游戏内容不另行授予美术许可。
 
 ## 0.2.3 开发候选点阵字体
 
-中文采用文泉驿点阵宋体的原生 12 / 14 / 16px BDF，版权 (C)2004-2010 WenQuanYi Project Board of Trustees and Qianqian Fang，GPL-2.0 及字体嵌入例外；ASCII 采用 Terminus 4.49 原生 6×12 / 7×14 / 8×16 BDF，版权 (C)2020 Dimitar Toshkov Zhekov，SIL OFL 1.1，保留其 Reserved Font Name 声明。源 BDF 未改，版本、来源与校验值见 assets/fonts/bitmap/manifest.json。少量兼容字符通过原始像素组合或无缩放来源回退补齐；24px 字号仅对 12px 点阵作 2 倍整数放大。生成字形保留各自字体许可和上游例外，不因此将原游戏或素材额外授权。旧 Noto 文件仅为此前版本来源记录，当前 H1 字库及主菜单排字不再调用 Noto 矢量字栅格化。
+中文正文采用文泉驿点阵宋体的原生 12 / 14 / 16px BDF，版权 (C)2004-2010 WenQuanYi Project Board of Trustees and Qianqian Fang，GPL-2.0 及字体嵌入例外。ASCII 采用 Terminus 4.49 原生 6×12 / 7×14 / 8×16 BDF，版权 (C)2020 Dimitar Toshkov Zhekov，SIL OFL 1.1，保留其 Reserved Font Name 声明。源 BDF 未改，版本、来源与校验值见 assets/fonts/bitmap/manifest.json。
+
+24px 中文标题使用马善政毛笔楷书的 1 位点阵。`assets/fonts/MaShanZheng-Regular.ttf` 来自 Google Fonts，SHA256 为 `6d2546bb189c732a8ca29af9e22457b152387d158aa459e4ac2ce1e51788b7fb`，SIL OFL 1.1。24px 数字、符号和缺字用 12px 点阵作 2 倍整数放大。生成字形保留各自字体许可和上游例外。旧 Noto 文件为此前版本来源记录。[Google Fonts 源文件](https://github.com/google/fonts/tree/main/ofl/mashanzheng)

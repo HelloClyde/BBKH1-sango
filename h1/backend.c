@@ -2,7 +2,9 @@
  * surfaces; only this file accesses native H1 services. */
 #include "h1_sdk.h"
 #include "sango_internal.h"
+#include "string.h"
 #include "font.inc"
+#include "battle_art.inc"
 
 unsigned char h1_private_stack[65536] __attribute__((section(".h1_noinit.stack"),aligned(16)));
 unsigned char sango_legacy_blob[0xbc20] __attribute__((aligned(16)));
@@ -10,8 +12,15 @@ extern unsigned char sango_original_data[];
 extern unsigned int sango_original_data_size;
 int h1_layout_game;
 volatile unsigned int h1_diagnostic[16];
-enum {SURFACE_HEIGHT=320};
-typedef struct {uint16_t pixels[H1_SURFACE_WIDTH*SURFACE_HEIGHT]; unsigned fill,text,font,mode;int x,y;} Surface;
+enum {SURFACE_HEIGHT=320, BATTLE_SOURCE_HEIGHT=160,
+      BATTLE_SURFACE_WIDTH=H1_SURFACE_WIDTH*3/2, BATTLE_SURFACE_HEIGHT=BATTLE_SOURCE_HEIGHT*3/2,
+      BATTLE_SURFACE_BYTES=BATTLE_SURFACE_WIDTH*BATTLE_SURFACE_HEIGHT*sizeof(uint16_t)};
+typedef struct {
+    uint16_t pixels[H1_SURFACE_WIDTH*SURFACE_HEIGHT];
+    unsigned fill,text,font,mode;
+    int x,y;
+    uint16_t *battle_pixels;
+} Surface;
 static Surface window;
 static int guard,dirty,closed;
 static unsigned present_tick;
@@ -24,10 +33,102 @@ static unsigned queued[3],has_queued;
 static unsigned char held[6];
 static void *gui(unsigned offset){return h1_runtime_entry(h1_runtime_table(H1_RUNTIME_GUI_TABLE_SLOT),offset);}
 static void *fs(unsigned offset){return h1_runtime_entry(h1_runtime_table(H1_RUNTIME_FS_TABLE_SLOT),offset);}
+
+void h1_run_game_sessions(void (*run)(void))
+{
+#ifdef H1_POWER_H
+    h1_power_run(run);
+#else
+    run();
+#endif
+}
+
 static Surface *surface(unsigned context){return context>0x80000000u?(Surface *)context:&window;}
 static unsigned rgb(unsigned r,unsigned g,unsigned b){return ((r>>3)<<11)|((g>>2)<<5)|(b>>3);}
 static unsigned object(unsigned o){switch(o){case 15:return 65535;case 8:return 0xad55;case 7:return 0x528a;case 16:return 0;default:return o;}}
-static void pixel(Surface *s,int x,int y,unsigned c){if((unsigned)x<H1_SURFACE_WIDTH&&(unsigned)y<SURFACE_HEIGHT){s->pixels[y*H1_SURFACE_WIDTH+x]=c;if(s==&window)dirty=1;}}
+static int battle_scale(int position){return (position*3+1)/2;}
+
+static void battle_legacy_pixel(uint16_t *detail,int x,int y,uint16_t color)
+{
+    int left=battle_scale(x),right=battle_scale(x+1);
+    int top=battle_scale(y),bottom=battle_scale(y+1);
+    for(int row=top;row<bottom;row++)
+        for(int col=left;col<right;col++)detail[row*BATTLE_SURFACE_WIDTH+col]=color;
+}
+
+static uint16_t *battle_surface(Surface *s)
+{
+    if(s->battle_pixels)return s->battle_pixels;
+    uint16_t *detail=h1_alloc(BATTLE_SURFACE_BYTES);
+    if(!detail)return 0;
+    for(int y=0;y<BATTLE_SOURCE_HEIGHT;y++)for(int x=0;x<H1_SURFACE_WIDTH;x++)
+        battle_legacy_pixel(detail,x,y,s->pixels[y*H1_SURFACE_WIDTH+x]);
+    s->battle_pixels=detail;
+    return detail;
+}
+
+static void pixel(Surface *s,int x,int y,unsigned c)
+{
+    if((unsigned)x>=H1_SURFACE_WIDTH||(unsigned)y>=SURFACE_HEIGHT)return;
+    s->pixels[y*H1_SURFACE_WIDTH+x]=c;
+    if(s->battle_pixels&&y<BATTLE_SOURCE_HEIGHT)battle_legacy_pixel(s->battle_pixels,x,y,c);
+    if(s==&window)dirty=1;
+}
+
+static void sample_battle_cell(Surface *s,int x,int y,const uint16_t *cell)
+{
+    for(int row=0;row<16;row++)for(int col=0;col<16;col++)
+        s->pixels[(y+row)*H1_SURFACE_WIDTH+x+col]=cell[battle_scale(row)*BATTLE_SURFACE_WIDTH+battle_scale(col)];
+    if(s==&window)dirty=1;
+}
+
+static uint16_t *battle_cell(Surface *s,int x,int y)
+{
+    if(h1_layout_game!=2||!sango_color_is_loaded()||
+       (unsigned)x>H1_SURFACE_WIDTH-16||(unsigned)y>BATTLE_SOURCE_HEIGHT-16)
+        return 0;
+    uint16_t *detail=battle_surface(s);
+    return detail?detail+battle_scale(y)*BATTLE_SURFACE_WIDTH+battle_scale(x):0;
+}
+
+int h1_battle_tile_art(unsigned tile,int x,int y,unsigned target)
+{
+    if(tile>=sizeof(battle_terrain_tiles)/sizeof(*battle_terrain_tiles))return 0;
+    Surface *s=surface(target);
+    uint16_t *cell=battle_cell(s,x,y);
+    if(!cell)return 0;
+    for(int row=0;row<H1_BATTLE_TILE;row++)
+        memcpy(cell+row*BATTLE_SURFACE_WIDTH,battle_terrain_tiles[tile]+row*H1_BATTLE_TILE,
+               H1_BATTLE_TILE*sizeof(*cell));
+    sample_battle_cell(s,x,y,cell);
+    return 1;
+}
+
+uint16_t h1_blend_rgb565(unsigned fg,unsigned bg,unsigned weight)
+{
+    unsigned rest=255-weight;
+    unsigned red=((fg>>11)*weight+(bg>>11)*rest+127)/255;
+    unsigned green=(((fg>>5)&63)*weight+((bg>>5)&63)*rest+127)/255;
+    unsigned blue=((fg&31)*weight+(bg&31)*rest+127)/255;
+    return (red<<11)|(green<<5)|blue;
+}
+
+int h1_battle_unit_art(unsigned unit,int x,int y,unsigned target)
+{
+    if(unit>=sizeof(battle_unit_colors)/sizeof(*battle_unit_colors))return 0;
+    Surface *s=surface(target);
+    uint16_t *cell=battle_cell(s,x,y);
+    if(!cell)return 0;
+    for(int row=0;row<H1_BATTLE_TILE;row++)for(int col=0;col<H1_BATTLE_TILE;col++){
+        int index=row*H1_BATTLE_TILE+col;
+        unsigned alpha=battle_unit_alpha[unit][index];
+        uint16_t *dest=cell+row*BATTLE_SURFACE_WIDTH+col;
+        if(alpha)*dest=alpha==255?battle_unit_colors[unit][index]:
+            h1_blend_rgb565(battle_unit_colors[unit][index],*dest,alpha);
+    }
+    sample_battle_cell(s,x,y,cell);
+    return 1;
+}
 static void fill(Surface *s,int x,int y,int w,int h,unsigned c){
     if(w<=0||h<=0)return;int r=x+w,b=y+h;if(x<0)x=0;if(y<0)y=0;if(r>H1_SURFACE_WIDTH)r=H1_SURFACE_WIDTH;if(b>SURFACE_HEIGHT)b=SURFACE_HEIGHT;
     for(int j=y;j<b;j++)for(int i=x;i<r;i++)pixel(s,i,j,c);
@@ -57,7 +158,11 @@ static void panel_text(volatile uint32_t *out,int x,int y,const char *label){
 static void rect32(volatile uint32_t *out,int x,int y,int w,int h,unsigned c){for(int j=y;j<y+h;j++)for(int i=x;i<x+w;i++)out[j*480+i]=c;}
 static const unsigned button_keys[6]={0x67,0x6c,0x69,0x6a,0x1c,1};
 void h1_compose_battle(void){
-    for(int y=0;y<H1_BATTLE_HEIGHT;y++){
+    if(window.battle_pixels){
+        const uint16_t *detail=window.battle_pixels+h1_battle_phase_y*BATTLE_SURFACE_WIDTH+h1_battle_phase_x;
+        for(int y=0;y<H1_BATTLE_HEIGHT;y++)
+            memcpy(h1_native_pixels+y*480,detail+y*BATTLE_SURFACE_WIDTH,480*sizeof(*detail));
+    }else for(int y=0;y<H1_BATTLE_HEIGHT;y++){
         const uint16_t *row=window.pixels+((y+h1_battle_phase_y)*2/3)*H1_SURFACE_WIDTH;
         uint16_t *out=h1_native_pixels+y*480;
         int src=h1_battle_phase_x;
@@ -104,11 +209,11 @@ static int poll(unsigned *event){
      * the preceding contact as a new drag origin. Wait two native ticks;
      * contacts released sooner become one down/up pair at the final point. */
     if(press_pending){
-        /* Native menus need a release-position tap, not drag sampling. The
-         * strategy map retains continuous gestures after its new point arrives. */
-        if(raw_down&&((h1_native_active&&h1_screen_id!=13)||
-            (unsigned)(h1_raw_tick_80hz()-press_tick)<2||
-            (px==last_raw_x&&py==last_raw_y)))return 0;
+        /* Lists and the strategy map sample settled drags. Other native
+         * menus retain release-position taps. */
+        unsigned elapsed=h1_raw_tick_80hz()-press_tick;
+        if(raw_down&&((h1_native_active&&h1_screen_id!=13&&!h1_list_touch_active)||
+            elapsed<2||(px==last_raw_x&&py==last_raw_y&&(!h1_list_touch_active||elapsed<4))))return 0;
         if(px<480&&py<272){
             int tx,ty;if(h1_map_touch(px,py,&tx,&ty)){
                 press_pending=0;
@@ -128,7 +233,14 @@ static int poll(unsigned *event){
             if(pen_button>=0){event[0]=0x10;event[1]=button_keys[pen_button];event[2]=0;return 1;}
             if(mapped){pen_x=sx;pen_y=sy;event[0]=1;event[1]=0;event[2]=sx|(sy<<16);return 1;}
         }else if(pen_button<0&&mapped){pen_x=sx;pen_y=sy;}
-    }else if(pen_down){last_raw_x=px;last_raw_y=py;pen_down=0;if(pen_button<0){event[0]=2;event[1]=0;event[2]=pen_x|(pen_y<<16);return 1;}pen_button=-1;}
+    }else if(pen_down){
+        last_raw_x=px;last_raw_y=py;pen_down=0;
+        if(pen_button<0){
+            if(code==8&&h1_list_touch_active&&h1_map_touch(px,py,&sx,&sy)){pen_x=sx;pen_y=sy;}
+            event[0]=2;event[1]=0;event[2]=pen_x|(pen_y<<16);return 1;
+        }
+        pen_button=-1;
+    }
     unsigned now=h1_raw_tick_80hz();
     for(int i=1;i<8;i++)if(timers[i]&&(int)(now-due[i])>=0){due[i]=now+timers[i];event[0]=0x144;event[1]=i;event[2]=0;return 1;}
     return 0;
@@ -143,6 +255,8 @@ void h1_app_main(void){
     memset(sango_legacy_blob,0,sizeof(sango_legacy_blob));memcpy(sango_legacy_blob,sango_original_data,sango_original_data_size);
     for(unsigned i=0;i+4<=sango_original_data_size;i+=4){unsigned *v=(unsigned *)(sango_legacy_blob+i);if(*v>=0x81c1fef0u&&*v<0x81c2bb00u)*v=(unsigned)sango_legacy_blob+*v-0x81c1fef0u;}
     h1_native_active=1;h1_diagnostic[0]=0x53474831;sango_main();h1_ui_assets_free();h1_diagnostic[1]=9;
+    if(window.battle_pixels)h1_free(window.battle_pixels);
+    window.battle_pixels=0;
     typedef void (*Close)(void);((Close)gui(0x850))();
 }
 int bda_sango_gui_shell_open(unsigned a){(void)a;typedef int(*Open)(void);return ((Open)gui(0x84c))();}
@@ -155,7 +269,10 @@ int bda_sango_gui_request_redraw(unsigned a,unsigned b,unsigned c){(void)a;(void
 void *bda_sango_mem_alloc(unsigned n){return h1_alloc(n);}
 void bda_sango_mem_free(void *p){h1_free(p);}
 void *bda_sango_gui_compatible_create(unsigned a){(void)a;Surface *s=h1_alloc(sizeof(Surface));if(s){memset(s,0,sizeof(*s));s->fill=65535;}return s;}
-void bda_sango_gui_compatible_free(void *p){if(p&&p!=&window)h1_free(p);}
+void bda_sango_gui_compatible_free(void *p){
+    Surface *s=p;
+    if(s&&s!=&window){if(s->battle_pixels)h1_free(s->battle_pixels);h1_free(s);}
+}
 void *bda_sango_gui_draw_object(unsigned a){return (void *)(object(a)+0x10000u);}
 static unsigned color_object(unsigned a){return a>=0x10000&&a<0x20000?a-0x10000:a;}
 unsigned bda_sango_gui_set_fill_object(unsigned c,unsigned o){Surface *s=surface(c);unsigned old=s->fill;s->fill=color_object(o);return old;}
@@ -178,7 +295,36 @@ void bda_sango_gui_rectangle(unsigned c,int l,int t,int r,int b){bda_sango_gui_m
 void bda_sango_gui_circle(unsigned c,int x,int y,int r){int a=r,b=0,e=1-r;while(a>=b){int xx[8]={a,b,-b,-a,-a,-b,b,a},yy[8]={b,a,a,b,-b,-a,-a,-b};for(int i=0;i<8;i++)pixel(surface(c),x+xx[i],y+yy[i],surface(c)->fill);b++;if(e<0)e+=2*b+1;else{a--;e+=2*(b-a)+1;}}}
 int bda_sango_gui_draw_aux_rectangle(unsigned c,int x,int y,int w,int h){Surface *s=surface(c);for(int j=y;j<=y+h;j++)for(int i=x;i<=x+w;i++)if((unsigned)i<H1_SURFACE_WIDTH&&(unsigned)j<SURFACE_HEIGHT)pixel(s,i,j,s->pixels[j*H1_SURFACE_WIDTH+i]^65535);return 1;}
 int bda_sango_gui_context_copy(unsigned src,int sx,int sy,int w,int h,unsigned dst,int dx,int dy,unsigned key){
-    Surface *a=surface(src),*b=surface(dst);if(w==240&&h==320)w=H1_SURFACE_WIDTH;for(int y=0;y<h;y++)for(int x=0;x<w;x++)if((unsigned)(sx+x)<H1_SURFACE_WIDTH&&(unsigned)(sy+y)<SURFACE_HEIGHT){unsigned p=a->pixels[(sy+y)*H1_SURFACE_WIDTH+sx+x];if(p!=key)pixel(b,dx+x,dy+y,p);}return 1;}
+    Surface *a=surface(src),*b=surface(dst);
+    if(w==240&&h==320)w=H1_SURFACE_WIDTH;
+    int detail_rows=0;
+    /* The engine publishes and snapshots battle surfaces at the same origin. */
+    if(a->battle_pixels&&sx==dx&&sy==dy&&(unsigned)sx<H1_SURFACE_WIDTH&&
+       (unsigned)sy<BATTLE_SOURCE_HEIGHT&&w>0&&h>0){
+        uint16_t *detail=battle_surface(b);
+        if(detail){
+            int right=sx+w>H1_SURFACE_WIDTH?H1_SURFACE_WIDTH:sx+w;
+            detail_rows=sy+h>BATTLE_SOURCE_HEIGHT?BATTLE_SOURCE_HEIGHT-sy:h;
+            for(int y=battle_scale(sy);y<battle_scale(sy+detail_rows);y++){
+                int row=y*BATTLE_SURFACE_WIDTH;
+                for(int x=battle_scale(sx);x<battle_scale(right);x++){
+                    uint16_t p=a->battle_pixels[row+x];
+                    if(p!=key)detail[row+x]=p;
+                }
+            }
+        }
+    }
+    for(int y=0;y<h;y++)for(int x=0;x<w;x++){
+        if((unsigned)(sx+x)>=H1_SURFACE_WIDTH||(unsigned)(sy+y)>=SURFACE_HEIGHT)continue;
+        unsigned p=a->pixels[(sy+y)*H1_SURFACE_WIDTH+sx+x];
+        if(p==key)continue;
+        if(y<detail_rows){
+            b->pixels[(dy+y)*H1_SURFACE_WIDTH+dx+x]=p;
+            if(b==&window)dirty=1;
+        }else pixel(b,dx+x,dy+y,p);
+    }
+    return 1;
+}
 void bda_gui_render_picture(unsigned c,int x,int y,int w,int h,const bda_gui_picture_t *p){for(int j=0;j<h;j++)for(int i=0;i<w;i++)pixel(surface(c),x+i,y+j,p->source_pixels[(j*p->height/h)*p->width+i*p->width/w]);}
 int bda_sango_gui_render_region(unsigned c,int x,int y,int w,int h,int sw,int sh,void *desc,int sx,int sy){
     unsigned *d=desc;const unsigned char *p=(void *)d[5];int bits=((unsigned char *)desc)[16];
@@ -218,10 +364,21 @@ int bda_sango_gui_control_destroy(unsigned a){(void)a;return 0;}
 int bda_sango_gui_set_active(unsigned a){(void)a;return 1;}
 void bda_sango_gui_edit_finish(void){}
 int bda_sango_gui_message_box(unsigned a,const char *message,const char *title,unsigned flags){
-    (void)a;(void)flags;Surface *saved=bda_sango_gui_compatible_create(0);if(saved)memcpy(saved,&window,sizeof(window));
+    (void)a;(void)flags;Surface *saved=bda_sango_gui_compatible_create(0);
+    if(saved){
+        memcpy(saved,&window,offsetof(Surface,battle_pixels));
+        if(window.battle_pixels&&battle_surface(saved))
+            memcpy(saved->battle_pixels,window.battle_pixels,BATTLE_SURFACE_BYTES);
+    }
     fill(&window,8,80,224,100,0xdecf);window.font=4;window.text=0;window.mode=1;text(&window,16,88,title,-1);window.font=0;text(&window,16,112,message,-1);text(&window,32,156,"\xc8\xb7\xb6\xa8 / \xb7\xb5\xbb\xd8",-1);dirty=1;
     unsigned e[3];int result=0;while(1)if(poll(e)&&e[0]==0x10){if(e[1]==0x1c){result=1;break;}if(e[1]==1)break;}
-    if(saved){memcpy(&window,saved,sizeof(window));h1_free(saved);}dirty=1;return result;
+    if(saved){
+        memcpy(&window,saved,offsetof(Surface,battle_pixels));
+        if(saved->battle_pixels)memcpy(window.battle_pixels,saved->battle_pixels,BATTLE_SURFACE_BYTES);
+        else if(window.battle_pixels){h1_free(window.battle_pixels);window.battle_pixels=0;}
+        bda_sango_gui_compatible_free(saved);
+    }
+    dirty=1;return result;
 }
 /* Resources, settings and paired saves share the application's game-data
  * directory. Firmware paths use GBK; serialized save bytes remain unchanged. */

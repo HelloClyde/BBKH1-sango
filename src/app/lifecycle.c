@@ -16,6 +16,14 @@ void sango_main(void)
     return;
 }
 
+static void sango_play_sessions(void)
+{
+    while (sango_select_session() != 0)
+    {
+        sango_strategy_run_months();
+    }
+}
+
 /* 原函数 0x81c16c80 */
 /* 应用内的一次游戏生命周期：载入资源、显示片头、选择会话、运行战略循环及释放。 */
 void sango_game_lifecycle(void)
@@ -37,10 +45,11 @@ void sango_game_lifecycle(void)
         failed = sango_allocate_session_state();
         if (failed == 0)
         {
-            while (failed = sango_select_session(), failed != 0)
-            {
-                sango_strategy_run_months();
-            }
+#ifdef SANGO_H1
+            h1_run_game_sessions(sango_play_sessions);
+#else
+            sango_play_sessions();
+#endif
         }
         else
         {

@@ -28,6 +28,6 @@ SDK 的许可不覆盖原游戏、字库、原图、`sango.LIB` 或固件。
 
 `h1/backend.c`、`h1/native_ui.c`、`h1/music.c`、`h1/entry.S`、H1 接口头文件和 H1 构建 / 素材 / 检查 Python 脚本采用 LICENSES/MIT.txt 中的 MIT 条款，版权人为 2026 BBKH1-sango contributors；恢复接口、数据布局和原作内容的既有权利不受此声明改变。
 
-`h1/audio.c`、`h1/audio.h` 来自本工作区 H1 音频实现，保留 GPL-2.0 许可，正文见 LICENSES/H1-audio-GPL-2.0.txt；不将其改称 MIT。当前 `h1/font.inc` 的中文字模来自文泉驿点阵宋体，采用 GPL-2.0 及上游字体嵌入例外，见 LICENSES/WenQuanYi-GPL-2.0.txt、WenQuanYi-FONT-EXCEPTION.txt；ASCII 字模来自 Terminus 4.49，采用 SIL OFL 1.1，见 LICENSES/Terminus-OFL-1.1.txt。24px 字形为 12px 原始点阵整数放大。原始 BDF 随 assets/fonts/bitmap/ 提供，生成字模不纳入脚本的 MIT 授权。历史 Noto 源文件及旧版字形继续保留原 OFL 声明。
+`h1/audio.c`、`h1/audio.h` 来自本工作区 H1 音频实现，保留 GPL-2.0 许可，正文见 LICENSES/H1-audio-GPL-2.0.txt。`h1/font.inc` 的中文字模来自文泉驿点阵宋体和马善政毛笔楷书，ASCII 字模来自 Terminus 4.49。文泉驿采用 GPL-2.0 及上游字体嵌入例外，见 LICENSES/WenQuanYi-GPL-2.0.txt、WenQuanYi-FONT-EXCEPTION.txt。马善政毛笔楷书和 Terminus 各自采用 SIL OFL 1.1，见 LICENSES/Ma-Shan-Zheng-OFL-1.1.txt、LICENSES/Terminus-OFL-1.1.txt。原始字体随 assets/fonts/ 提供，生成字模沿用各自字体许可。历史 Noto 源文件及旧版字形继续保留原 OFL 声明。
 
 当前 sdk/ 已改为 MrDefinition1999/bbk-h1-bda-sdk 的固定提交 067fe072477861dfc8949d7b1a55279fb92d2548，沿用其 Apache-2.0 LICENSE / NOTICE，旧 9588 SDK 的说明仅描述上游历史。

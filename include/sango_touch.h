@@ -25,6 +25,10 @@ int sango_touch_menu_row(unsigned int background, const int *event);
 int sango_touch_choose_row(const int *event, int left, int top, int right, int row_height,
                            unsigned int visible, unsigned int first, unsigned int total);
 int sango_touch_swipe_key(const int *event);
+#ifdef SANGO_H1
+int sango_touch_started_in_rect(int x, int y, int width, int height);
+unsigned sango_touch_contact_sequence(void);
+#endif
 int sango_touch_map_point(const int *event, uint8_t *state, int columns, int rows, int screen_width,
                           int screen_height);
 int sango_touch_pan_map(const int *event, uint8_t *state, int world_width, int world_height,

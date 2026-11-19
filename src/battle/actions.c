@@ -462,11 +462,15 @@ void sango_battle_change_weather(void)
     weather = bbk_rand();
     weather = (int)weather % 5 + 1;
     g_battle_weather = (uint8_t)weather;
+#ifdef SANGO_H1
+    h1_battle_show_weather(weather);
+#else
     sango_bitmap_draw_resource((weather & 0xff) + 0x1b, 1, sango_battle_animation_left(),
                                sango_battle_animation_top(), '\x01');
     sango_battle_status_draw_weather(0);
     sango_battle_status_draw_weather(g_game_context);
     sango_input_wait(0x32, '\0');
+#endif
     return;
 }
 

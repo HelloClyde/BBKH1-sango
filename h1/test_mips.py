@@ -9,6 +9,7 @@ source=(ROOT/'tools/test_control_flow.py').read_text(encoding='utf8').replace('s
 module=types.ModuleType('test_control_flow');module.__file__=str(ROOT/'tools/test_control_flow.py')
 sys.modules[module.__name__]=module;exec(compile(source,module.__file__,'exec'),module.__dict__)
 ELF=(ROOT/'build/h1/H1Sango.elf').read_bytes()
+UI_ADDRESS=0x82000000  # Dedicated asset range, clear of the test stack and gameplay buffers.
 original=module.Machine
 symbols,_=module.decode_image(ELF)
 module.STATE={key:symbols['sango_legacy_blob']+address-0x81c1fef0 for key,address in module.STATE.items()}

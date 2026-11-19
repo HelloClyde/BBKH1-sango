@@ -207,10 +207,20 @@ int sango_touch_map_point(const int *event, uint8_t *state, int columns, int row
 }
 
 #ifdef SANGO_H1
+int sango_touch_started_in_rect(int x, int y, int width, int height)
+{
+    return (unsigned)(contact.origin_x - x) < (unsigned)width &&
+           (unsigned)(contact.origin_y - y) < (unsigned)height;
+}
+
+unsigned sango_touch_contact_sequence(void)
+{
+    return contact.sequence;
+}
+
 int sango_touch_started_in_map(int width, int height)
 {
-    return (unsigned)contact.origin_x < (unsigned)width &&
-           (unsigned)contact.origin_y < (unsigned)height;
+    return sango_touch_started_in_rect(0, 0, width, height);
 }
 #endif
 

@@ -707,18 +707,28 @@ uint32_t sango_city_find_weakest_target(uint32_t city_count, int city_ids_addres
     return (uint32_t) * (uint8_t *)(city_ids_address + weakest_city_index);
 }
 
-/* 原函数 0x81c11d98 */
-void sango_strategy_show_army_attack(uint8_t ruler_id, char city_id)
+static void show_army_notice(char *message, unsigned int image, short ticks)
 {
-    uint8_t *event_images;
-    char *message;
-    char *text_part;
-
+#ifdef SANGO_H1
+    h1_show_army_notice(message, image, ticks);
+#else
     sango_ui_paint_begin();
     sango_display_fill_gray_rectangle(0x3b, 0x75, 0xb3, 0xc9, 0, 0);
     sango_display_draw_rectangle(0x3b, 0x75, 0xb3, 0xc9, 3, 0, 0);
-    event_images = (uint8_t *)sango_resource_item(0x4c, '\x01', g_resource_package_address);
-    sango_bitmap_draw_frame_screen(0x4d, 0x77, 0x54, 0x40, 0, event_images);
+    uint8_t *event_images = (uint8_t *)sango_resource_item(0x4c, '\x01', g_resource_package_address);
+    sango_bitmap_draw_frame_screen(0x4d, 0x77, 0x54, 0x40, image, event_images);
+    sango_text_draw_centered(0x77, 0xb9, message);
+    sango_ui_paint_end();
+    sango_input_wait(ticks, '\0');
+#endif
+}
+
+/* 原函数 0x81c11d98 */
+void sango_strategy_show_army_attack(uint8_t ruler_id, char city_id)
+{
+    char *message;
+    char *text_part;
+
     message = (char *)(g_scratch_buffer_address + 300);
     text_part = (char *)(g_scratch_buffer_address + 0x154);
     if (g_player_character == ruler_id)
@@ -733,9 +743,7 @@ void sango_strategy_show_army_attack(uint8_t ruler_id, char city_id)
     bbk_strcat(message, text_part);
     sango_city_read_name(city_id, text_part);
     bbk_strcat(message, text_part);
-    sango_text_draw_centered(0x77, 0xb9, message);
-    sango_ui_paint_end();
-    sango_input_wait(0x1e, '\0');
+    show_army_notice(message, 0, 0x1e);
     sango_render_clear_rectangle(0x78, 0xd4, 0x9f, 0xef, g_game_context);
     sango_text_draw_context(0x78, 0xd4, text_part, g_game_context);
     return;
@@ -744,15 +752,9 @@ void sango_strategy_show_army_attack(uint8_t ruler_id, char city_id)
 /* 原函数 0x81c11f18 */
 void sango_strategy_show_armies_engage(uint8_t first_ruler, uint8_t second_ruler)
 {
-    uint8_t *event_images;
     char *text_part;
     char *message;
 
-    sango_ui_paint_begin();
-    sango_display_fill_gray_rectangle(0x3b, 0x75, 0xb3, 0xc9, 0, 0);
-    sango_display_draw_rectangle(0x3b, 0x75, 0xb3, 0xc9, 3, 0, 0);
-    event_images = (uint8_t *)sango_resource_item(0x4c, '\x01', g_resource_package_address);
-    sango_bitmap_draw_frame_screen(0x4d, 0x77, 0x54, 0x40, 1, event_images);
     message = (char *)(g_scratch_buffer_address + 300);
     text_part = (char *)(g_scratch_buffer_address + 0x154);
     sango_load_named_text(first_ruler, message);
@@ -762,24 +764,16 @@ void sango_strategy_show_armies_engage(uint8_t first_ruler, uint8_t second_ruler
     bbk_strcat(message, text_part);
     sango_resource_read_text(0x40, 0x69, text_part);
     bbk_strcat(message, text_part);
-    sango_text_draw_centered(0x77, 0xb9, message);
-    sango_ui_paint_end();
-    sango_input_wait(0x32, '\0');
+    show_army_notice(message, 1, 0x32);
     return;
 }
 
 /* 原函数 0x81c12058 */
 void sango_strategy_show_battle_victory(uint8_t owner_id)
 {
-    uint8_t *event_images;
     char *message;
     char *text_part;
 
-    sango_ui_paint_begin();
-    sango_display_fill_gray_rectangle(0x3b, 0x75, 0xb3, 0xc9, 0, 0);
-    sango_display_draw_rectangle(0x3b, 0x75, 0xb3, 0xc9, 3, 0, 0);
-    event_images = (uint8_t *)sango_resource_item(0x4c, '\x01', g_resource_package_address);
-    sango_bitmap_draw_frame_screen(0x4d, 0x77, 0x54, 0x40, 2, event_images);
     message = (char *)(g_scratch_buffer_address + 300);
     text_part = (char *)(g_scratch_buffer_address + 0x154);
     if ((uint32_t)owner_id == g_player_character + 1)
@@ -792,31 +786,21 @@ void sango_strategy_show_battle_victory(uint8_t owner_id)
     }
     sango_resource_read_text(0x40, 0x5b, text_part);
     bbk_strcat(message, text_part);
-    sango_text_draw_centered(0x77, 0xb9, message);
-    sango_ui_paint_end();
-    sango_input_wait(0x32, '\0');
+    show_army_notice(message, 2, 0x32);
     return;
 }
 
 /* 原函数 0x81c12188 */
 void sango_strategy_show_battle_defeat(void)
 {
-    uint8_t *event_images;
     char *text_part;
     char *message;
 
-    sango_ui_paint_begin();
-    sango_display_fill_gray_rectangle(0x3b, 0x75, 0xb3, 0xc9, 0, 0);
-    sango_display_draw_rectangle(0x3b, 0x75, 0xb3, 0xc9, 3, 0, 0);
-    event_images = (uint8_t *)sango_resource_item(0x4c, '\x01', g_resource_package_address);
-    sango_bitmap_draw_frame_screen(0x4d, 0x77, 0x54, 0x40, 3, event_images);
     message = (char *)(g_scratch_buffer_address + 300);
     text_part = (char *)(g_scratch_buffer_address + 0x154);
     sango_resource_read_text(0x40, 0x62, message);
     sango_resource_read_text(0x40, 0x5c, text_part);
     bbk_strcat(message, text_part);
-    sango_text_draw_centered(0x77, 0xb9, message);
-    sango_ui_paint_end();
-    sango_input_wait(0x32, '\0');
+    show_army_notice(message, 3, 0x32);
     return;
 }

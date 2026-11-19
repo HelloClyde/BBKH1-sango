@@ -41,7 +41,7 @@ python h1/test_save_paths.py
 
 成品输出在 `dist/h1/`。安装脚本校验 GNU 15.2.0 工具链 ZIP 的 SHA256；已有工具链可用 `--cc PATH/TO/mipsel-none-elf-gcc.exe` 或 `H1_GNU_BIN` 指向其 bin 目录。`H1_SDK` 可覆盖 SDK 路径，正式发布固定为子模块提交。
 
-仓库已包含字形表及横屏面板，普通构建无需图像生成服务。当前候选用 `python h1/make_font.py` 与 `python h1/prepare_landscape.py` 从 `assets/fonts/bitmap/` 的文泉驿 / Terminus 原生 BDF 重新编码和排字；各自许可见 LICENSE.md。`build.py`、[README-9588.md](README-9588.md) 和原有 `tools/test_*.py` 保留上游 9588 工程历史，H1 入口以本页为准。
+仓库已包含字形表及横屏面板，普通构建无需图像生成服务。用 `python h1/make_font.py` 与 `python h1/prepare_landscape.py` 从 `assets/fonts/` 的文泉驿、Terminus 原生 BDF 和马善政毛笔楷书重新编码和排字。各自许可见 LICENSE.md。`build.py`、[README-9588.md](README-9588.md) 和原有 `tools/test_*.py` 保留上游 9588 工程历史，H1 入口以本页为准。
 
 从 0.2.1 升级时，先备份旧 `A:\H1SANGO\` 中的存档，再按原名成对移入上述游戏目录；新版只读取新目录，不自动移动旧文件。详见[升级说明](releases/v0.2.2-h1-savepath.md)。
 
