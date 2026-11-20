@@ -1,0 +1,32 @@
+{
+  "target": "H1/Y100 V1.41",
+  "result": "passed",
+  "physical_device_used": true,
+  "scope": "A temporary new game reached the battlefield and used the original-art upscaling path on a physical H1.",
+  "detail_render": {
+    "native_surface": [
+      504,
+      240
+    ],
+    "pixels_distinct_from_old_sampling": 1474
+  },
+  "battle_screenshot_sha256": "c2476aa5f23aa3c31443924716518ed5ada3f19df9f349d28d672a27c223cdc1",
+  "native_art_verified_on": "2026-11-19",
+  "battle_build_verified_on": "2026-11-20",
+  "transfers": {
+    "H1Sango.bda": {
+      "completed": true,
+      "device_crc_verified": true,
+      "size": 2617248,
+      "crc32": 2451325856,
+      "sha256": "ba71cbee0e7755096ec5d30ce7b49c39b9fb25fb1151d2ae79411e779312464d"
+    },
+    "sango.h1r": {
+      "completed": true,
+      "device_crc_verified": true,
+      "size": 2570164,
+      "crc32": 558161692,
+      "sha256": "6e241a9d6c584670b9ad8861efc765f1ccfb9729c3ea2578ad045b3d8cb69fa1"
+    }
+  }
+}
