@@ -15,6 +15,7 @@
 应用/数据/游戏/sango.lib
 应用/数据/游戏/sango.clr
 应用/数据/游戏/sango.h1r
+应用/数据/游戏/sango.h1p
 应用/数据/游戏/SGMUSIC/menu.wav
 应用/数据/游戏/SGMUSIC/strategy.wav
 应用/数据/游戏/SGMUSIC/battle.wav

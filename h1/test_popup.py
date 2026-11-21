@@ -254,6 +254,18 @@ def main():
     assert h.m.read(h.s['h1_screen_id'],4)==struct.pack('<I',12)
     checks.append('strategy notes size to text, keep the portrait, paginate GBK, restore the map, and leave progress updates nonblocking')
 
+    h.reset()
+    waits.clear()
+    count=h.m.call('sango_strategy_list_rulers',13,B+0x400)
+    assert count>1
+    h.run('sango_ui_show_ai_progress',[])
+    assert waits==[[20,0]]*count and len(h.frames)==count+1
+    assert len(set(h.frames[:-1]))==count and h.pixels()==h.background
+    first=image(h.frames[0])
+    assert ImageChops.difference(first,image(h.background)).getbbox()==(148,200,332,232)
+    first.save(screenshots/'mips-ai-progress.png')
+    checks.append('AI progress publishes each opposing ruler on the strategy map for the original timing')
+
     report = {'result': 'passed', 'checks': checks, 'bda_sha256': hashlib.sha256((R / 'dist/h1/H1Sango.bda').read_bytes()).hexdigest(),
               'scope': 'Actual compiled MIPS popup/controller/render logic; native heap/input/display modeled. Not physical-device evidence.'}
     (R / 'reports/h1-popup-mips.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf8')

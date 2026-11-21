@@ -15,12 +15,15 @@
     "original city command mapping group 2",
     "original city command mapping group 3",
     "domestic submenu retains the selected parent; nested cancel restores the original map",
+    "touch and keyboard keep the same parent highlight for diplomacy and military submenus",
     "outside touches dismiss child then parent without reaching the map",
     "40 long GBK labels clip inside a bounded scrolled popup at the bottom/right edge",
     "item picker uses the same small popup and preserves item index semantics",
     "fresh battle composition captured before popup; inactive battle mode restored",
-    "snapshot allocation failure cancels without erasing the screen"
+    "snapshot allocation failure cancels without erasing the screen",
+    "strategy notes size to text, keep the portrait, paginate GBK, restore the map, and leave progress updates nonblocking",
+    "AI progress publishes each opposing ruler on the strategy map for the original timing"
   ],
-  "bda_sha256": "f241c9a89bb7cdbdd51ac17c766cce69f9987802831dc5258918e4297672eb93",
+  "bda_sha256": "55b840037a9479c418a44e0c4dae2f01ca90eb6314892e003790bd9d01286d0d",
   "scope": "Actual compiled MIPS popup/controller/render logic; native heap/input/display modeled. Not physical-device evidence."
 }

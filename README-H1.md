@@ -15,6 +15,7 @@
 应用/数据/游戏/sango.lib
 应用/数据/游戏/sango.clr
 应用/数据/游戏/sango.h1r
+应用/数据/游戏/sango.h1p
 应用/数据/游戏/SGMUSIC/menu.wav
 应用/数据/游戏/SGMUSIC/strategy.wav
 应用/数据/游戏/SGMUSIC/battle.wav
@@ -54,7 +55,7 @@ python h1/test_landscape.py
 python h1/render_battle_fixture.py
 ```
 
-重新排字用 `h1/prepare_landscape.py`，重新编码字体用 `h1/make_font.py`，读取 `assets/fonts/` 中的原生 BDF 和马善政毛笔楷书。上游 LIB / CLR 素材改动时，构建加 `--assets`。战场地形与兵种由构建脚本从原始 16×16 帧和透明蒙版生成 24×24 帧。完整固件验证需要匹配的 QEMU、内核和 NAND。
+重新排字用 `h1/prepare_landscape.py`，重新编码字体用 `h1/make_font.py`，读取 `assets/fonts/` 中的原生 BDF 和马善政毛笔楷书。上游 LIB / CLR 素材改动时，构建加 `--assets`。战场地形由原始 16×16 帧生成 24×24 帧。兵种和战船使用 GPT Image 高清重绘，按各帧原来的位置和尺寸缩至 24×24 网格，并保留透明边缘。`sango.h1p` 配套提供四个剧本经 SeedVR2 超分的 72×72 武将头像，按需从游戏目录读取。完整固件验证需要匹配的 QEMU、内核和 NAND。
 
 原上游代码保留在 `src/` 与 `include/`；适配在 `h1/`，生成文件在 `build/h1/`。原 `README.md` 介绍 9588 版本，本 H1 版以本文件为准。
 

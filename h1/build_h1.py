@@ -4,6 +4,8 @@ import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'build/h1'
 DIST=ROOT/'dist/h1'
+NATIVE_ART=ROOT/'assets/h1-landscape/native'
+BATTLE_UNIT_ART=NATIVE_ART/'battle-units-gpt-image-hd.png'
 SDK=Path(os.environ.get('H1_SDK', ROOT/'sdk')).resolve()
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(SDK))
@@ -47,7 +49,7 @@ def prepare():
         overrides={'sango_menu_select_animated','sango_menu_choose_ruler','sango_menu_show_credits','sango_intro_open_menu','sango_city_choose_command',
             'sango_animation_play_resource','sango_settings_show','sango_ui_choose_option','sango_ui_select_character',
             'sango_ui_select_item','sango_ui_select_number','sango_ui_show_message','sango_ui_show_character_message',
-            'sango_ui_show_city_details','sango_save_draw_slots','sango_save_choose_slot','sango_strategy_draw_map',
+            'sango_ui_show_city_details','sango_ui_show_ai_progress','sango_save_draw_slots','sango_save_choose_slot','sango_strategy_draw_map',
             'sango_strategy_select_city','sango_strategy_present','sango_battle_copy_viewport_tiles','sango_battle_draw_terrain',
             'sango_battle_info_show','sango_battle_show_overview'}
         for name in overrides:
@@ -89,7 +91,8 @@ def main():
         color={'sha256':hashlib.sha256((OUT/'sango.clr').read_bytes()).hexdigest()}
     inc,sources=prepare()
     from h1.prepare_battle_art import write_art
-    write_art(inc/'battle_art.inc',library,(OUT/'sango.clr').read_bytes())
+    write_art(inc/'battle_art.inc',library,(OUT/'sango.clr').read_bytes(),
+              unit_strip=BATTLE_UNIT_ART)
     suffix='.exe' if os.name=='nt' else ''
     cc=args.cc or (Path(os.environ.get('H1_GNU_BIN', ROOT/'.toolchain/bin'))/('mipsel-none-elf-gcc'+suffix))
     cc=cc.resolve()
@@ -123,7 +126,8 @@ def main():
         'inputs':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*sorted((ROOT/'h1').glob('*')), *sorted((ROOT/'src').rglob('*.c')), *sorted((ROOT/'include').glob('*.h'))] if p.is_file()}}
     (DIST/'BUILD_INFO.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     for name in ('sango.lib','sango.clr'):shutil.copy2(OUT/name,DIST/name)
-    shutil.copy2(ROOT/'assets/h1-landscape/native/sango.h1r',DIST/'sango.h1r')
+    for name in ('sango.h1r','sango.h1p'):
+        shutil.copy2(NATIVE_ART/name,DIST/name)
     package()
     print(json.dumps({k:summary[k] for k in ('target','bytes','bda_sha256')},ensure_ascii=False))
 
@@ -138,8 +142,12 @@ def package():
                     strategy_vertical_scroll_pixels=120,battle_scroll_unit='lcd-pixel',
                     battle_art={'tile_pixels':[24,24],'terrain_frames':46,'unit_frames':32,
                                 'embedded_in_bda':True,'source_pixels':[16,16],
+                                'mountain_art':'original ridge palette with filled rock faces',
+                                'unit_art':'GPT Image HD masters with original frame bounds and antialiased edges',
+                                'unit_art_sha256':hashlib.sha256(BATTLE_UNIT_ART.read_bytes()).hexdigest(),
                                 'source_lib_sha256':metadata['library_sha256'],
                                 'source_clr_sha256':metadata['color_sha256']},
+                    officer_portrait_sha256=hashlib.sha256((DIST/'sango.h1p').read_bytes()).hexdigest(),
                     footer_font_pixels=12,uniform_cjk_nominal_size=True)
     (DIST/'BUILD_INFO.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     asset_root=ROOT/'assets/h1-landscape'
@@ -148,7 +156,8 @@ def package():
             if p.is_file():z.write(p,p.relative_to(asset_root))
     files={'应用/程序/H1Sango.bda':DIST/'H1Sango.bda',
         '应用/数据/游戏/sango.lib':DIST/'sango.lib','应用/数据/游戏/sango.clr':DIST/'sango.clr',
-        '应用/数据/游戏/sango.h1r':DIST/'sango.h1r'}
+        '应用/数据/游戏/sango.h1r':DIST/'sango.h1r',
+        '应用/数据/游戏/sango.h1p':DIST/'sango.h1p'}
     for p in (ROOT/'assets/music/runtime').glob('*.wav'):files['应用/数据/游戏/SGMUSIC/'+p.name]=p
     for name in ('README.md','README-H1.md','LICENSE.md','THIRD_PARTY_NOTICES.md'):files[name]=ROOT/name
     for p in (ROOT/'LICENSES').iterdir():
@@ -207,6 +216,6 @@ def package():
     with zipfile.ZipFile(DIST/'H1Sango-install.zip','w',zipfile.ZIP_DEFLATED) as z:
         for name,p in files.items():
             if p.exists():z.write(p,name)
-    (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(DIST.iterdir()) if p.suffix in ('.bda','.zip','.lib','.clr','.h1r')),encoding='ascii')
+    (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n' for p in sorted(DIST.iterdir()) if p.suffix in ('.bda','.zip','.lib','.clr','.h1r','.h1p')),encoding='ascii')
 
 if __name__=='__main__':main()

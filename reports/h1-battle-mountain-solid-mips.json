@@ -1,0 +1,12 @@
+{
+  "result": "passed",
+  "bda_sha256": "55b840037a9479c418a44e0c4dae2f01ca90eb6314892e003790bd9d01286d0d",
+  "map_resource": 112,
+  "test_ridge_viewport_tile": [
+    8,
+    1
+  ],
+  "scope": "No grass-colored source pixels inside rock face masks. Original colors retained outside these masks.",
+  "comparison": "reports/screenshots/h1-battle-mountain-solid-comparison.png",
+  "install_zip": "verified"
+}
